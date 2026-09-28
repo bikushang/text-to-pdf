@@ -1,0 +1,216 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* Editor content area */
+.prose-editor .ProseMirror {
+  padding: 16px 24px;
+  min-height: 400px;
+}
+
+.prose-editor .ProseMirror h1 {
+  font-size: 2em;
+  font-weight: 700;
+  margin: 0.5em 0;
+}
+
+.prose-editor .ProseMirror h2 {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin: 0.5em 0;
+}
+
+.prose-editor .ProseMirror h3 {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin: 0.5em 0;
+}
+
+.prose-editor .ProseMirror p {
+  margin: 0.5em 0;
+}
+
+.prose-editor .ProseMirror hr {
+  border: none;
+  border-top: 2px dashed #cbd5e1;
+  margin: 16px 0;
+  page-break-after: always;
+}
+
+/* Document preview styles */
+.preview-content {
+  position: relative;
+  color: #1a1a1a;
+  overflow-wrap: anywhere;
+}
+
+.preview-content h1,
+.preview-content h2,
+.preview-content h3 {
+  font-weight: 700;
+  line-height: 1.2;
+  page-break-after: avoid;
+}
+
+.preview-content h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.preview-content h2 {
+  font-size: 1.5em;
+  margin: 0.83em 0;
+}
+
+.preview-content h3 {
+  font-size: 1.25em;
+  margin: 1em 0;
+}
+
+.preview-content p {
+  margin: 0.65em 0;
+}
+
+.preview-content strong {
+  font-weight: 700;
+}
+
+.preview-content em {
+  font-style: italic;
+}
+
+.preview-content ul,
+.preview-content ol {
+  margin: 0.75em 0;
+  padding-left: 1.75em;
+}
+
+.preview-content li {
+  margin: 0.25em 0;
+}
+
+.preview-content a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.preview-content table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin: 1em 0;
+  table-layout: auto;
+  page-break-inside: avoid;
+  font-size: 0.95em;
+}
+
+.preview-content th,
+.preview-content td {
+  border: 1px solid #94a3b8;
+  padding: 10px 12px;
+  min-width: 40px;
+  vertical-align: top;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.preview-content th {
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.preview-content tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+.preview-content hr {
+  border: 0;
+  border-top: 2px dashed #94a3b8;
+  margin: 1.5em 0;
+}
+
+.preview-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* TipTap editor styles */
+.ProseMirror {
+  outline: none;
+  min-height: 100%;
+}
+
+.ProseMirror:focus {
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #94a3b8;
+  pointer-events: none;
+  height: 0;
+}
+
+.ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 8px 0;
+}
+
+.ProseMirror th,
+.ProseMirror td {
+  border: 1px solid #cbd5e1;
+  padding: 6px 10px;
+}
+
+.ProseMirror th {
+  background-color: #f1f5f9;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5rem;
+}
+
+.ProseMirror a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
