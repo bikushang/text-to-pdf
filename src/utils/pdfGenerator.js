@@ -17,12 +17,6 @@ function createPageContainer(html, settings, widthPx, heightPx, margins) {
   container.style.lineHeight = '1.6'
   container.style.boxSizing = 'border-box'
 
-  const logoHtml = settings.logoData
-    ? `<div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:0; pointer-events:none;">
-         <img src="${settings.logoData}" style="width:${settings.logoWidth}px; opacity:${settings.logoOpacity / 100}; max-width:100%;" />
-       </div>`
-    : ''
-
   const styleTag = `<style>
     .pdf-page-content h1 { font-size: 2em; font-weight: 700; line-height: 1.2; margin: 0.67em 0; }
     .pdf-page-content h2 { font-size: 1.5em; font-weight: 700; line-height: 1.2; margin: 0.83em 0; }
@@ -40,7 +34,7 @@ function createPageContainer(html, settings, widthPx, heightPx, margins) {
     .pdf-page-content img { max-width: 100%; height: auto; }
   </style>`
 
-  container.innerHTML = styleTag + logoHtml + `<div class="pdf-page-content" style="position:relative; z-index:1;">${html || '<p style="color:#94a3b8">Empty page...</p>'}</div>`
+  container.innerHTML = styleTag + `<div class="pdf-page-content" style="position:relative; z-index:1;">${html || '<p style="color:#94a3b8">Empty page...</p>'}</div>`
   return container
 }
 

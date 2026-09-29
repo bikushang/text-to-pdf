@@ -51,7 +51,7 @@ function App() {
   const [generating, setGenerating] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [error, setError] = useState(null)
-  const [previewScale, setPreviewScale] = useState(0.85)
+  const [previewScale, setPreviewScale] = useState(0.55)
   const [showPreview, setShowPreview] = useState(true)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [showContentModal, setShowContentModal] = useState(false)
@@ -60,6 +60,8 @@ function App() {
   const [coverPage, setCoverPage] = useState(null)
   const editorRef = useRef(null)
   const previewRef = useRef(null)
+  const activePageRef = useRef(0)
+  activePageRef.current = activePageIndex
 
   const handleContentSubmit = (formattedContent) => {
     const newPages = normalizePages(formattedContent)
@@ -72,14 +74,15 @@ function App() {
   const handlePageChange = useCallback((html) => {
     setPages(prev => {
       const next = [...prev]
-      next[activePageIndex] = html
+      next[activePageRef.current] = html
       return next
     })
-  }, [activePageIndex])
+  }, [])
 
   const handleAddPage = () => {
     setPages(prev => [...prev, ''])
     setActivePageIndex(pages.length)
+    setEditorKey(k => k + 1)
   }
 
   const handleRemovePage = () => {
@@ -89,6 +92,7 @@ function App() {
       return next.length ? next : ['']
     })
     setActivePageIndex(idx => Math.max(0, idx - 1))
+    setEditorKey(k => k + 1)
   }
 
   const handleSelectPage = (idx) => {
