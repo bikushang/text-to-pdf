@@ -166,7 +166,7 @@ export default function DocumentSettings({ settings, onChange, coverPage, onCove
             </div>
             <div>
               <label className="form-label">Logo Lightness: {settings.logoOpacity}%</label>
-              <input type="range" min="10" max="100" step="5" value={settings.logoOpacity}
+              <input type="range" min="5" max="100" step="5" value={settings.logoOpacity}
                 onChange={(e) => onChange({ ...settings, logoOpacity: parseInt(e.target.value, 10) })}
                 className="range-field" />
               <p className="text-xs text-neutral-400 mt-0.5">Lower = more faded/subtle</p>
