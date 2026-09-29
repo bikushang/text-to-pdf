@@ -13,6 +13,44 @@ function normalizeCoverHtml(html, heightPx, margins) {
   )
 }
 
+function hasMeaningfulPixels(canvas, yOffset, sliceHeight, backgroundColor) {
+  if (
+    !canvas ||
+    canvas.width <= 0 ||
+    canvas.height <= 0 ||
+    yOffset >= canvas.height ||
+    sliceHeight <= 0
+  ) {
+    return false
+  }
+
+  const match = /^#([0-9a-f]{6})$/i.exec(backgroundColor || '')
+  if (!match) return true
+
+  const background = [
+    parseInt(match[1].slice(0, 2), 16),
+    parseInt(match[1].slice(2, 4), 16),
+    parseInt(match[1].slice(4, 6), 16),
+  ]
+  const context = canvas.getContext('2d')
+  const step = 8
+  const width = canvas.width
+  const height = Math.floor(Math.min(canvas.height - yOffset, sliceHeight))
+  if (height <= 0) return false
+  const pixels = context.getImageData(0, yOffset, width, height).data
+
+  for (let index = 0; index < pixels.length; index += 4 * step) {
+    if (
+      Math.abs(pixels[index] - background[0]) > 10 ||
+      Math.abs(pixels[index + 1] - background[1]) > 10 ||
+      Math.abs(pixels[index + 2] - background[2]) > 10
+    ) {
+      return true
+    }
+  }
+  return false
+}
+
 function createPageContainer(html, settings, widthPx, heightPx, margins, isCover = false) {
   const container = document.createElement('div')
   container.style.position = 'absolute'
@@ -48,6 +86,65 @@ function createPageContainer(html, settings, widthPx, heightPx, margins, isCover
   const pageHtml = isCover ? normalizeCoverHtml(html, heightPx, margins) : html
   container.innerHTML = styleTag + `<div class="pdf-page-content" style="position:relative; z-index:1;">${pageHtml || '<p style="color:#94a3b8">Empty page...</p>'}</div>`
   return container
+}
+
+function collectBreakableBlocks(root, usableHeight) {
+  const blocks = []
+  const visit = (node) => {
+    const children = [...node.children]
+    if (
+      children.length > 0 &&
+      Math.max(node.offsetHeight, node.scrollHeight) > usableHeight
+    ) {
+      children.forEach(visit)
+    } else {
+      blocks.push(node)
+    }
+  }
+  ;[...root.children].forEach(visit)
+  return blocks
+}
+
+async function splitHtmlAtElementBoundaries(html, settings, widthPx, heightPx, margins, isCover) {
+  const container = createPageContainer(html, settings, widthPx, heightPx, margins, isCover)
+  container.style.minHeight = '0'
+  container.style.height = 'auto'
+  document.body.appendChild(container)
+
+  try {
+    const images = [...container.querySelectorAll('img')]
+    await Promise.all(images.map((image) => image.complete
+      ? Promise.resolve()
+      : new Promise((resolve) => {
+          image.onload = resolve
+          image.onerror = resolve
+        })))
+
+    const content = container.querySelector('.pdf-page-content')
+    const usableHeight = Math.max(1, heightPx - mmToPx(margins.top + margins.bottom))
+    const blocks = content ? collectBreakableBlocks(content, usableHeight) : []
+    if (blocks.length <= 1) return [html || '']
+
+    const chunks = []
+    let current = []
+    let pageStart = 0
+    const contentRect = content.getBoundingClientRect()
+    for (const block of blocks) {
+      const blockRect = block.getBoundingClientRect()
+      const blockTop = blockRect.top - contentRect.top
+      const blockBottom = blockTop + blockRect.height
+      if (current.length && blockBottom > pageStart + usableHeight) {
+        chunks.push(current.join(''))
+        current = []
+        pageStart += usableHeight
+      }
+      current.push(block.outerHTML)
+    }
+    if (current.length) chunks.push(current.join(''))
+    return chunks.length ? chunks : [html || '']
+  } finally {
+    document.body.removeChild(container)
+  }
 }
 
 /**
@@ -103,17 +200,31 @@ export async function generatePDFFromContent(pages, settings, coverPage = null) 
     for (let i = 0; i < allPages.length; i++) {
       const isCover = hasCover && i === 0
       const margins = isCover ? coverMargins : contentMargins
-
-      const container = createPageContainer(
-        allPages[i],
-        settings,
-        widthPx,
-        heightPx,
-        margins,
-        isCover,
+      const pageContents = await splitHtmlAtElementBoundaries(
+        allPages[i], settings, widthPx, heightPx, margins, isCover,
       )
-      document.body.appendChild(container)
-      try {
+
+      for (const pageContent of pageContents) {
+        const container = createPageContainer(
+          pageContent, settings, widthPx, heightPx, margins, isCover,
+        )
+        document.body.appendChild(container)
+        try {
+        // Element-boundary pagination has already prepared this chunk. Keep
+        // fitting chunks inside one physical page so html2canvas cannot cut a
+        // table at an image-slice boundary.
+        if (container.scrollHeight <= heightPx + 2) {
+          container.style.height = `${heightPx}px`
+          container.style.minHeight = `${heightPx}px`
+          container.style.overflow = 'hidden'
+        } else {
+          // A chunk that still overflows is an indivisible oversized element
+          // (for example a table taller than one page). Keep it visible so no
+          // content is silently removed; normal chunks are always one page.
+          container.style.height = `${container.scrollHeight}px`
+          container.style.minHeight = `${container.scrollHeight}px`
+          container.style.overflow = 'visible'
+        }
         const canvas = await html2canvas(container, {
           scale: 2,
           useCORS: true,
@@ -123,30 +234,13 @@ export async function generatePDFFromContent(pages, settings, coverPage = null) 
           windowHeight: container.scrollHeight,
         })
 
-        // The canvas already contains the page margins. Slice by the full
-        // physical page size so margins do not create an extra blank page.
-        const pxPerMm = canvas.width / Math.max(1, widthMm)
-        const pageHeightPx = heightMm * pxPerMm
-        let yOffset = 0
-
-        while (yOffset < canvas.height || (!yOffset && canvas.height === 0)) {
-          const sliceCanvas = document.createElement('canvas')
-          sliceCanvas.width = canvas.width
-          sliceCanvas.height = Math.min(pageHeightPx, Math.max(1, canvas.height - yOffset))
-          const ctx = sliceCanvas.getContext('2d')
-          ctx.fillStyle = settings.bgColor
-          ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height)
-          ctx.drawImage(canvas, 0, yOffset, canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height)
-
-          if (hasAddedPage) pdf.addPage()
-          pdf.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', 0, 0, widthMm, sliceCanvas.height / pxPerMm)
-          if (!isCover) stampLogo()
-          hasAddedPage = true
-          yOffset += pageHeightPx
-          if (canvas.height === 0) break
+        if (hasAddedPage) pdf.addPage()
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, widthMm, heightMm)
+        if (!isCover) stampLogo()
+        hasAddedPage = true
+        } finally {
+          document.body.removeChild(container)
         }
-      } finally {
-        document.body.removeChild(container)
       }
     }
 

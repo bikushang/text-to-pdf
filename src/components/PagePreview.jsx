@@ -32,7 +32,7 @@ function collectBreakableBlocks(root, usableHeight) {
     const children = [...node.children];
     const shouldSplitChildren =
       children.length > 0 &&
-      node.offsetHeight > usableHeight;
+      Math.max(node.offsetHeight, node.scrollHeight) > usableHeight;
 
     if (shouldSplitChildren) {
       children.forEach(visit);
@@ -89,16 +89,21 @@ const PagePreview = forwardRef(function PagePreview(
 
         const chunks = [];
         let current = [];
-        let pageStart = children[0].offsetTop;
+        // Measure from the content container so nested wrappers use the same
+        // coordinate system as the page-break boundary.
+        let pageStart = 0;
+        const contentRect = contentEl.getBoundingClientRect();
 
         children.forEach((child) => {
-          const childBottom = child.offsetTop + child.offsetHeight;
+          const childRect = child.getBoundingClientRect();
+          const childTop = childRect.top - contentRect.top;
+          const childBottom = childTop + childRect.height;
           const crossesPage = childBottom > pageStart + usableHeight;
 
           if (current.length && crossesPage) {
             chunks.push(current.join(""));
             current = [];
-            pageStart = child.offsetTop;
+            pageStart += usableHeight;
           }
           current.push(child.outerHTML);
         });
