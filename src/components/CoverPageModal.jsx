@@ -1,245 +1,183 @@
-import { useState } from 'react'
-
 export const COVER_TEMPLATES = [
   {
-    id: 'classic',
-    name: 'Classic',
-    description: 'Centered title with subtitle and author',
-    generate: ({ title, subtitle, author, date }) => `
-<div style="min-height:820px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:100px 40px;">
-<h2 style="font-size:1.5em; font-weight:700; color:#6b7280; font-family:Georgia, serif; margin-bottom:16px;text-transform:uppercase;">Duolingo</h2>  
-<h1 style="font-size:2.8em; font-weight:700; color:#1e293b; margin-bottom:16px;">${title || 'Document Title'}</h1>
-  <p style="font-size:1.2em; color:#64748b; margin-bottom:40px;">${subtitle || 'Subtitle goes here'}</p>
-  <div style="width:60px; height:3px; background:#3b82f6; margin:0 auto 40px;"></div>
-  <p style="font-size:1em; color:#475569;">${author || 'Author Name'}</p>
-  <p style="font-size:0.9em; color:#94a3b8;">${date || ''}</p>
+    id: 'gradient-hero',
+    name: 'Gradient Hero',
+    description: 'Full-page gradient with centered logo and title',
+    generate: (f) => `
+<div style="min-height:100vh; background:linear-gradient(135deg, ${f.bgColor} 0%, ${f.accentColor} 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 40px; margin:0; text-align:center; box-sizing:border-box;">
+  ${f.logoData ? `<img src="${f.logoData}" style="width:${f.logoWidth}px; max-width:100%; height:auto; margin-bottom:40px; object-fit:contain;" />` : ''}
+  <h1 style="font-size:${f.titleSize}px; font-weight:800; color:#ffffff; margin:0 0 16px 0; line-height:1.15; text-shadow:0 2px 8px rgba(0,0,0,0.15);">${f.title || 'Document Title'}</h1>
+  <div style="width:80px; height:4px; background:rgba(255,255,255,0.6); border-radius:2px; margin:20px 0;"></div>
+  <p style="font-size:${f.subtitleSize}px; color:rgba(255,255,255,0.85); margin:12px 0 0 0;">${f.subtitle || 'Subtitle goes here'}</p>
+  <div style="margin-top:60px;">
+    <p style="font-size:${f.authorSize}px; color:rgba(255,255,255,0.9); font-weight:600; margin:0;">${f.author || 'Author Name'}</p>
+    <p style="font-size:${f.dateSize}px; color:rgba(255,255,255,0.6); margin:6px 0 0 0;">${f.date || ''}</p>
+  </div>
 </div>`,
   },
   {
-    id: 'banner',
-    name: 'Banner',
-    description: 'Full-width colored banner with title',
-    generate: ({ title, subtitle, author, date }) => `
-<div style="min-height:820px; box-sizing:border-box; margin:-25px; background:linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%); padding:100px 40px; color:white; display:flex; flex-direction:column; justify-content:center;">
-<h2 style="font-size:1.5em; font-weight:700; color:#6b7280; font-family:Georgia, serif; margin-bottom:16px;text-transform:uppercase;">Duolingo</h2>  
-<h1 style="font-size:2.5em; font-weight:700; margin-bottom:12px; color:white;">${title || 'Document Title'}</h1>
-  <p style="font-size:1.2em; opacity:0.9; margin-bottom:8px;">${subtitle || 'Subtitle goes here'}</p>
-  <p style="font-size:0.95em; opacity:0.7;">${author || 'Author Name'}${date ? ' | ' + date : ''}</p>
+    id: 'split-panel',
+    name: 'Split Panel',
+    description: 'Color block on left, content on right',
+    generate: (f) => `
+<div style="display:flex; min-height:100vh; margin:0; box-sizing:border-box;">
+  <div style="width:40%; background:${f.accentColor}; display:flex; align-items:center; justify-content:center; padding:40px;">
+    ${f.logoData ? `<img src="${f.logoData}" style="width:${f.logoWidth}px; max-width:100%; height:auto; object-fit:contain;" />` : `<div style="color:rgba(255,255,255,0.3); font-size:4em; font-weight:800;">${(f.title || 'D')[0]}</div>`}
+  </div>
+  <div style="flex:1; background:${f.bgColor}; display:flex; flex-direction:column; justify-content:center; padding:60px 50px;">
+    <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:4px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 20px 0;">DUOLINGO</p>
+    <h1 style="font-size:${f.titleSize}px; font-weight:800; color:#1a1a1a; margin:0 0 16px 0; line-height:1.15;">${f.title || 'Document Title'}</h1>
+    <div style="width:60px; height:3px; background:${f.accentColor}; margin:24px 0;"></div>
+    <p style="font-size:${f.subtitleSize}px; color:#64748b; margin:0 0 40px 0;">${f.subtitle || 'Subtitle goes here'}</p>
+    <p style="font-size:${f.authorSize}px; color:#475569; font-weight:600; margin:0;">${f.author || 'Author Name'}</p>
+    <p style="font-size:${f.dateSize}px; color:#94a3b8; margin:6px 0 0 0;">${f.date || ''}</p>
+  </div>
 </div>`,
   },
   {
-    id: 'minimal',
-    name: 'Minimal',
-    description: 'Clean left-aligned title with thin accent line',
-    generate: ({ title, subtitle, author, date }) => `
-<div style="min-height:820px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:center; padding:100px 40px; border-left:10px solid #0ea5e9;">
-  <div style="width:80px; height:4px; background:#0ea5e9; margin-bottom:24px;"></div>
-  <h2 style="font-size:1.5em; font-weight:700; color:#6b7280; font-family:Georgia, serif; margin-bottom:16px;text-transform:uppercase;">Duolingo</h2>
-  <h1 style="font-size:2.4em; font-weight:700; color:#0f172a; margin-bottom:12px;">${title || 'Document Title'}</h1>
-  <p style="font-size:1.1em; color:#64748b; margin-bottom:32px;">${subtitle || 'Subtitle goes here'}</p>
-  <p style="font-size:0.95em; color:#94a3b8;">${author || 'Author Name'}${date ? '  |  ' + date : ''}</p>
-</div>`,
-  },
-  {
-    id: 'elegant',
-    name: 'Elegant',
-    description: 'Centered serif title with an open layout',
-    generate: ({ title, subtitle, author, date }) => `
-<div style="min-height:820px; box-sizing:border-box; padding:100px 40px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-<h2 style="font-size:1.5em; font-weight:700; color:#6b7280; font-family:Georgia, serif; margin-bottom:16px;text-transform:uppercase;">Duolingo</h2>
-  <h1 style="font-size:2.6em; font-weight:700; color:#1e293b; font-family:Georgia, serif; margin-bottom:16px;">${title || 'Document Title'}</h1>
-  <div style="width:40px; height:1px; background:#cbd5e1; margin:24px auto;"></div>
-  <p style="font-size:1.1em; color:#64748b; font-style:italic; margin-bottom:32px;">${subtitle || 'Subtitle goes here'}</p>
-  <p style="font-size:0.95em; color:#475569;">${author || 'Author Name'}</p>
-  <p style="font-size:0.85em; color:#94a3b8;">${date || ''}</p>
-</div>`,
-  },
-  {
-    id: 'modern',
-    name: 'Modern',
-    description: 'Bold left bar with large title and color block',
-    generate: ({ title, subtitle, author, date }) => `
-<div style="display:flex; min-height:820px; box-sizing:border-box; align-items:stretch;">
-  <div style="width:12px; background:#f59e0b; flex-shrink:0;"></div>
-  <div style="padding:100px 40px; flex:1; display:flex; flex-direction:column; justify-content:center;">
-    <h2 style="font-size:1.5em; font-weight:700; color:#6b7280; font-family:Georgia, serif; margin-bottom:16px;text-transform:uppercase;">Duolingo</h2> 
-    <h1 style="font-size:2.6em; font-weight:800; color:#0f172a; margin-bottom:16px; line-height:1.1;">${title || 'Document Title'}</h1>
-    <p style="font-size:1.15em; color:#64748b; margin-bottom:40px;">${subtitle || 'Subtitle goes here'}</p>
-    <div style="display:flex; gap:24px; align-items:center;">
-      <p style="font-size:0.95em; color:#475569; font-weight:600;">${author || 'Author Name'}</p>
-      <p style="font-size:0.9em; color:#94a3b8;">${date || ''}</p>
+    id: 'centered-frame',
+    name: 'Centered Frame',
+    description: 'Elegant bordered frame with logo on top',
+    generate: (f) => `
+<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:40px; margin:0; background:${f.bgColor}; box-sizing:border-box;">
+  <div style="border:3px solid ${f.accentColor}; padding:80px 60px; text-align:center; max-width:600px; width:100%;">
+    <div style="border:1px solid ${f.accentColor}; padding:60px 40px;">
+      ${f.logoData ? `<img src="${f.logoData}" style="width:${f.logoWidth}px; max-width:100%; height:auto; margin:0 auto 40px; object-fit:contain; display:block;" />` : ''}
+      <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:6px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 24px 0;">${f.author || 'Author'}</p>
+      <h1 style="font-size:${f.titleSize}px; font-weight:700; color:#1e293b; font-family:Georgia, serif; margin:0 0 20px 0; line-height:1.2;">${f.title || 'Document Title'}</h1>
+      <div style="width:50px; height:1px; background:${f.accentColor}; margin:28px auto;"></div>
+      <p style="font-size:${f.subtitleSize}px; color:#64748b; font-style:italic; margin:0 0 32px 0;">${f.subtitle || 'Subtitle goes here'}</p>
+      <p style="font-size:${f.dateSize}px; color:#94a3b8; margin:0; letter-spacing:1px;">${f.date || ''}</p>
     </div>
   </div>
 </div>`,
   },
   {
-    id: 'darkbox',
-    name: 'Dark Box',
-    description: 'Dark centered card with light text',
-    generate: ({ title, subtitle, author, date }) => `
-<div style="min-height:820px; box-sizing:border-box; background:#1e293b; padding:100px 40px; text-align:center; border-radius:8px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-<h2 style="font-size:1.5em; font-weight:700; color:#6b7280; font-family:Georgia, serif; margin-bottom:16px;text-transform:uppercase;">Duolingo</h2>  
-<h1 style="font-size:2.4em; font-weight:700; color:white; margin-bottom:16px;">${title || 'Document Title'}</h1>
-  <div style="width:50px; height:2px; background:#38bdf8; margin:20px auto;"></div>
-  <p style="font-size:1.15em; color:#cbd5e1; margin-bottom:32px;">${subtitle || 'Subtitle goes here'}</p>
-  <p style="font-size:0.95em; color:#94a3b8;">${author || 'Author Name'}${date ? '  |  ' + date : ''}</p>
+    id: 'top-bar',
+    name: 'Top Bar',
+    description: 'Color bar at top with logo, content below',
+    generate: (f) => `
+<div style="min-height:100vh; margin:0; background:${f.bgColor}; box-sizing:border-box;">
+  <div style="background:${f.accentColor}; padding:30px 40px; display:flex; align-items:center; justify-content:center; min-height:140px;">
+    ${f.logoData ? `<img src="${f.logoData}" style="width:${f.logoWidth}px; max-width:100%; height:auto; object-fit:contain;" />` : `<span style="color:rgba(255,255,255,0.5); font-size:${f.authorSize}px; font-weight:600; letter-spacing:2px;">YOUR LOGO</span>`}
+  </div>
+  <div style="padding:100px 50px; text-align:center;">
+    <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:4px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 24px 0;">DUOLINGO</p>
+    <h1 style="font-size:${f.titleSize}px; font-weight:800; color:#0f172a; margin:0 0 20px 0; line-height:1.1;">${f.title || 'Document Title'}</h1>
+    <div style="width:80px; height:4px; background:${f.accentColor}; margin:30px auto; border-radius:2px;"></div>
+    <p style="font-size:${f.subtitleSize}px; color:#64748b; margin:0 0 60px 0;">${f.subtitle || 'Subtitle goes here'}</p>
+    <p style="font-size:${f.authorSize}px; color:#475569; font-weight:600; margin:0;">${f.author || 'Author Name'}</p>
+    <p style="font-size:${f.dateSize}px; color:#94a3b8; margin:8px 0 0 0;">${f.date || ''}</p>
+  </div>
+</div>`,
+  },
+  {
+    id: 'dark-elegant',
+    name: 'Dark Elegant',
+    description: 'Dark background with gold accent and centered logo',
+    generate: (f) => `
+<div style="min-height:100vh; background:#0f172a; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 40px; margin:0; text-align:center; box-sizing:border-box;">
+  ${f.logoData ? `<img src="${f.logoData}" style="width:${f.logoWidth}px; max-width:100%; height:auto; margin-bottom:50px; object-fit:contain;" />` : ''}
+  <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:6px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 28px 0;">DUOLINGO</p>
+  <h1 style="font-size:${f.titleSize}px; font-weight:700; color:#f8fafc; margin:0 0 24px 0; line-height:1.15;">${f.title || 'Document Title'}</h1>
+  <div style="width:60px; height:2px; background:${f.accentColor}; margin:32px auto;"></div>
+  <p style="font-size:${f.subtitleSize}px; color:#cbd5e1; font-style:italic; margin:0 0 50px 0;">${f.subtitle || 'Subtitle goes here'}</p>
+  <p style="font-size:${f.authorSize}px; color:#e2e8f0; font-weight:600; margin:0;">${f.author || 'Author Name'}</p>
+  <p style="font-size:${f.dateSize}px; color:#64748b; margin:8px 0 0 0;">${f.date || ''}</p>
+</div>`,
+  },
+  {
+    id: 'minimal-accent',
+    name: 'Minimal Accent',
+    description: 'Clean white with accent line and left-aligned content',
+    generate: (f) => `
+<div style="min-height:100vh; background:${f.bgColor}; display:flex; flex-direction:column; justify-content:center; padding:80px 60px; margin:0; box-sizing:border-box;">
+  ${f.logoData ? `<img src="${f.logoData}" style="width:${f.logoWidth}px; max-width:100%; height:auto; margin-bottom:50px; object-fit:contain;" />` : ''}
+  <div style="width:60px; height:5px; background:${f.accentColor}; margin-bottom:30px; border-radius:3px;"></div>
+  <h1 style="font-size:${f.titleSize}px; font-weight:800; color:#0f172a; margin:0 0 20px 0; line-height:1.1;">${f.title || 'Document Title'}</h1>
+  <p style="font-size:${f.subtitleSize}px; color:#64748b; margin:0 0 50px 0; max-width:500px;">${f.subtitle || 'Subtitle goes here'}</p>
+  <div style="display:flex; align-items:center; gap:20px; margin-top:20px;">
+    <div style="width:40px; height:1px; background:${f.accentColor};"></div>
+    <div>
+      <p style="font-size:${f.authorSize}px; color:#475569; font-weight:600; margin:0;">${f.author || 'Author Name'}</p>
+      <p style="font-size:${f.dateSize}px; color:#94a3b8; margin:4px 0 0 0;">${f.date || ''}</p>
+    </div>
+  </div>
+</div>`,
+  },
+  {
+    id: 'circle-badge',
+    name: 'Circle Badge',
+    description: 'Logo in a circle badge with content below',
+    generate: (f) => {
+      const badgeSize = Math.min(f.logoWidth + 40, 400)
+      return `
+<div style="min-height:100vh; background:${f.bgColor}; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 40px; margin:0; text-align:center; box-sizing:border-box;">
+  <div style="width:${badgeSize}px; height:${badgeSize}px; border-radius:50%; border:4px solid ${f.accentColor}; display:flex; align-items:center; justify-content:center; margin-bottom:50px; overflow:hidden; padding:20px; box-sizing:border-box;">
+    ${f.logoData ? `<img src="${f.logoData}" style="width:100%; height:100%; object-fit:contain;" />` : `<span style="color:${f.accentColor}; font-size:${f.titleSize}px; font-weight:800;">${(f.title || 'D')[0]}</span>`}
+  </div>
+  <h1 style="font-size:${f.titleSize}px; font-weight:800; color:#0f172a; margin:0 0 20px 0; line-height:1.1;">${f.title || 'Document Title'}</h1>
+  <div style="width:50px; height:3px; background:${f.accentColor}; margin:24px auto; border-radius:2px;"></div>
+  <p style="font-size:${f.subtitleSize}px; color:#64748b; margin:0 0 40px 0;">${f.subtitle || 'Subtitle goes here'}</p>
+  <p style="font-size:${f.authorSize}px; color:#475569; font-weight:600; margin:0;">${f.author || 'Author Name'}</p>
+  <p style="font-size:${f.dateSize}px; color:#94a3b8; margin:6px 0 0 0;">${f.date || ''}</p>
+</div>`
+    },
+  },
+  {
+    id: 'diagonal-banner',
+    name: 'Diagonal Banner',
+    description: 'Diagonal color band with logo and title',
+    generate: (f) => `
+<div style="min-height:100vh; background:${f.bgColor}; margin:0; padding:0; box-sizing:border-box; position:relative; overflow:hidden;">
+  <div style="position:absolute; top:-100px; left:-100px; right:-100px; height:300px; background:${f.accentColor}; transform:rotate(-5deg); transform-origin:top left;"></div>
+  <div style="position:relative; padding:80px 50px; text-align:center; z-index:1;">
+    ${f.logoData ? `<img src="${f.logoData}" style="width:${f.logoWidth}px; max-width:100%; height:auto; margin:0 auto 60px; object-fit:contain; display:block; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.2));" />` : ''}
+  </div>
+  <div style="padding:40px 50px 80px; text-align:center; position:relative; z-index:1;">
+    <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:4px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 24px 0;">DUOLINGO</p>
+    <h1 style="font-size:${f.titleSize}px; font-weight:800; color:#0f172a; margin:0 0 24px 0; line-height:1.1;">${f.title || 'Document Title'}</h1>
+    <div style="width:70px; height:4px; background:${f.accentColor}; margin:30px auto; border-radius:2px;"></div>
+    <p style="font-size:${f.subtitleSize}px; color:#64748b; margin:0 0 50px 0;">${f.subtitle || 'Subtitle goes here'}</p>
+    <p style="font-size:${f.authorSize}px; color:#475569; font-weight:600; margin:0;">${f.author || 'Author Name'}</p>
+    <p style="font-size:${f.dateSize}px; color:#94a3b8; margin:8px 0 0 0;">${f.date || ''}</p>
+  </div>
 </div>`,
   },
 ]
 
-export function generateCoverHtml(coverPage, logoData = null, logoWidth = 120) {
-  const template = COVER_TEMPLATES.find((item) => item.id === coverPage?.templateId) || COVER_TEMPLATES[0]
-  const fields = coverPage?.fields || {}
-  const logoHtml = logoData
-    ? `<div style="width:100%; display:flex; justify-content:center; align-items:center; text-align:center; margin:0 0 28px;">
-         <img src="${logoData}" alt="Logo" style="width:${logoWidth}px; max-width:100%; height:auto; object-fit:contain;" />
-       </div>`
-    : ''
+export const COVER_COLOR_PRESETS = [
+  { name: 'Royal Blue', accent: '#2563eb', bg: '#1e3a5f' },
+  { name: 'Emerald', accent: '#059669', bg: '#064e3b' },
+  { name: 'Sunset Orange', accent: '#ea580c', bg: '#7c2d12' },
+  { name: 'Rose Gold', accent: '#e11d48', bg: '#881337' },
+  { name: 'Deep Teal', accent: '#0d9488', bg: '#134e4a' },
+  { name: 'Royal Purple', accent: '#7c3aed', bg: '#4c1d95' },
+  { name: 'Amber Gold', accent: '#d97706', bg: '#78350f' },
+  { name: 'Slate Dark', accent: '#38bdf8', bg: '#0f172a' },
+  { name: 'Forest Green', accent: '#16a34a', bg: '#14532d' },
+  { name: 'Crimson', accent: '#dc2626', bg: '#7f1d1d' },
+  { name: 'Indigo Night', accent: '#6366f1', bg: '#1e1b4b' },
+  { name: 'Coral', accent: '#f97316', bg: '#fff7ed' },
+]
 
-  return logoHtml + template.generate(fields)
+export const DEFAULT_COVER_FIELDS = {
+  title: '',
+  subtitle: '',
+  author: '',
+  date: new Date().toLocaleDateString(),
+  logoData: null,
+  logoWidth: 150,
+  accentColor: '#2563eb',
+  bgColor: '#1e3a5f',
+  titleSize: 48,
+  subtitleSize: 21,
+  authorSize: 16,
+  dateSize: 14,
 }
 
-export default function CoverPageModal({ onInsert, onCancel }) {
-  const [selectedTemplate, setSelectedTemplate] = useState(COVER_TEMPLATES[0])
-  const [fields, setFields] = useState({
-    title: '',
-    subtitle: '',
-    author: '',
-    date: new Date().toLocaleDateString(),
-  })
-
-  const handleInsert = () => {
-    const html = selectedTemplate.generate(fields)
-    onInsert(html)
-  }
-
-  const updateField = (key, value) => {
-    setFields((prev) => ({ ...prev, [key]: value }))
-  }
-
-  return (
-    <div className="fixed inset-0 bg-neutral-900/60 z-[60] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-neutral-200 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-neutral-800">Add Cover Page</h2>
-            <p className="text-sm text-neutral-500 mt-0.5">
-              Pick a template, fill in the details, and it will be inserted as the first page.
-            </p>
-          </div>
-          <button
-            onClick={onCancel}
-            className="text-neutral-400 hover:text-neutral-600 text-2xl leading-none"
-          >
-            &times;
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto flex flex-col lg:flex-row">
-          {/* Template picker */}
-          <div className="lg:w-64 p-4 border-b lg:border-b-0 lg:border-r border-neutral-200 bg-neutral-50">
-            <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">Templates</h3>
-            <div className="space-y-2">
-              {COVER_TEMPLATES.map((tpl) => (
-                <button
-                  key={tpl.id}
-                  onClick={() => setSelectedTemplate(tpl)}
-                  className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
-                    selectedTemplate.id === tpl.id
-                      ? 'border-primary-600 bg-primary-50'
-                      : 'border-neutral-200 bg-white hover:border-neutral-300'
-                  }`}
-                >
-                  <div className="font-medium text-sm text-neutral-800">{tpl.name}</div>
-                  <div className="text-xs text-neutral-500 mt-0.5">{tpl.description}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Form + Preview */}
-          <div className="flex-1 p-6 overflow-y-auto">
-            {/* Form fields */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Title</label>
-                <input
-                  type="text"
-                  value={fields.title}
-                  onChange={(e) => updateField('title', e.target.value)}
-                  placeholder="Document title..."
-                  className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Subtitle</label>
-                <input
-                  type="text"
-                  value={fields.subtitle}
-                  onChange={(e) => updateField('subtitle', e.target.value)}
-                  placeholder="Subtitle or tagline..."
-                  className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Author</label>
-                <input
-                  type="text"
-                  value={fields.author}
-                  onChange={(e) => updateField('author', e.target.value)}
-                  placeholder="Author name..."
-                  className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">Date</label>
-                <input
-                  type="text"
-                  value={fields.date}
-                  onChange={(e) => updateField('date', e.target.value)}
-                  placeholder="Date..."
-                  className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-            </div>
-
-            {/* Live preview */}
-            <div>
-              <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">Preview</h3>
-              <div className="bg-white border border-neutral-300 rounded-lg shadow-sm overflow-hidden">
-                <div
-                  className="preview-content"
-                  style={{ minHeight: '300px', padding: '20px' }}
-                  dangerouslySetInnerHTML={{ __html: selectedTemplate.generate(fields) }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-neutral-200 flex items-center justify-between">
-          <p className="text-xs text-neutral-400">
-            The cover page will be added before your existing content.
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={onCancel}
-              className="px-4 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleInsert}
-              className="px-6 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold transition-colors"
-            >
-              Insert Cover Page
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+export function generateCoverPage(templateId, fields) {
+  const template = COVER_TEMPLATES.find((t) => t.id === templateId) || COVER_TEMPLATES[0]
+  const merged = { ...DEFAULT_COVER_FIELDS, ...fields }
+  return template.generate(merged)
 }

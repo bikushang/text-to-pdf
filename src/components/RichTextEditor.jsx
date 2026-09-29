@@ -15,11 +15,7 @@ function ToolbarButton({ onClick, active, disabled, title, children }) {
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={`px-2 py-1.5 rounded text-sm transition-colors ${
-        active
-          ? 'bg-primary-600 text-white'
-          : 'text-neutral-700 hover:bg-neutral-200'
-      } disabled:opacity-30 disabled:cursor-not-allowed`}
+      className={`btn-icon ${active ? 'active' : ''}`}
     >
       {children}
     </button>
@@ -71,6 +67,7 @@ export default function RichTextEditor({ content, onChange, editorRef, remountKe
   if (!editor) {
     return (
       <div className="flex items-center justify-center h-96 text-neutral-400">
+        <i className="bi bi-arrow-clockwise animate-spin text-2xl mr-2"></i>
         Loading editor...
       </div>
     )
@@ -110,22 +107,14 @@ export default function RichTextEditor({ content, onChange, editorRef, remountKe
   }
 
   return (
-    <div className="border border-neutral-300 rounded-lg overflow-hidden bg-white flex flex-col">
+    <div className="border border-neutral-300 rounded-xl overflow-hidden bg-white flex flex-col">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 p-2 bg-neutral-50 border-b border-neutral-200 sticky top-0 z-10">
-        <ToolbarButton
-          title="Undo"
-          onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
-        >
-          <span className="font-bold">&#8617;</span>
+        <ToolbarButton title="Undo" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()}>
+          <i className="bi bi-arrow-counterclockwise"></i>
         </ToolbarButton>
-        <ToolbarButton
-          title="Redo"
-          onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
-        >
-          <span className="font-bold">&#8618;</span>
+        <ToolbarButton title="Redo" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()}>
+          <i className="bi bi-arrow-clockwise"></i>
         </ToolbarButton>
         <Divider />
 
@@ -138,7 +127,7 @@ export default function RichTextEditor({ content, onChange, editorRef, remountKe
             else if (val === 'h3') editor.chain().focus().toggleHeading({ level: 3 }).run()
             e.target.value = ''
           }}
-          className="px-2 py-1.5 rounded text-sm border border-neutral-300 bg-white text-neutral-700"
+          className="select-field select-sm"
           defaultValue=""
           title="Heading style"
         >
@@ -151,7 +140,7 @@ export default function RichTextEditor({ content, onChange, editorRef, remountKe
 
         <select
           onChange={(e) => editor.chain().focus().setFontFamily(e.target.value).run()}
-          className="px-2 py-1.5 rounded text-sm border border-neutral-300 bg-white text-neutral-700 max-w-[140px]"
+          className="select-field select-sm max-w-[140px]"
           defaultValue="Inter"
           title="Font family"
         >
@@ -162,7 +151,7 @@ export default function RichTextEditor({ content, onChange, editorRef, remountKe
 
         <select
           onChange={(e) => setFontSize(e.target.value)}
-          className="px-2 py-1.5 rounded text-sm border border-neutral-300 bg-white text-neutral-700"
+          className="select-field select-sm"
           defaultValue="16px"
           title="Font size"
         >
@@ -174,40 +163,40 @@ export default function RichTextEditor({ content, onChange, editorRef, remountKe
         <Divider />
 
         <ToolbarButton title="Bold" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}>
-          <span className="font-bold">B</span>
+          <i className="bi bi-type-bold"></i>
         </ToolbarButton>
         <ToolbarButton title="Italic" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}>
-          <span className="italic">I</span>
+          <i className="bi bi-type-italic"></i>
         </ToolbarButton>
         <ToolbarButton title="Underline" active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()}>
-          <span className="underline">U</span>
+          <i className="bi bi-type-underline"></i>
         </ToolbarButton>
         <ToolbarButton title="Strikethrough" active={editor.isActive('strike')} onClick={() => editor.chain().focus().toggleStrike().run()}>
-          <span className="line-through">S</span>
+          <i className="bi bi-type-strikethrough"></i>
         </ToolbarButton>
 
         <Divider />
 
         <ToolbarButton title="Align Left" active={editor.isActive({ textAlign: 'left' })} onClick={() => editor.chain().focus().setTextAlign('left').run()}>
-          &#8801;
+          <i className="bi bi-text-left"></i>
         </ToolbarButton>
         <ToolbarButton title="Align Center" active={editor.isActive({ textAlign: 'center' })} onClick={() => editor.chain().focus().setTextAlign('center').run()}>
-          &#8801;
+          <i className="bi bi-text-center"></i>
         </ToolbarButton>
         <ToolbarButton title="Align Right" active={editor.isActive({ textAlign: 'right' })} onClick={() => editor.chain().focus().setTextAlign('right').run()}>
-          &#8801;
+          <i className="bi bi-text-right"></i>
         </ToolbarButton>
         <ToolbarButton title="Justify" active={editor.isActive({ textAlign: 'justify' })} onClick={() => editor.chain().focus().setTextAlign('justify').run()}>
-          &#8801;
+          <i className="bi bi-justify"></i>
         </ToolbarButton>
 
         <Divider />
 
         <ToolbarButton title="Bullet List" active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()}>
-          &#8226;
+          <i className="bi bi-list-ul"></i>
         </ToolbarButton>
         <ToolbarButton title="Numbered List" active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
-          1.
+          <i className="bi bi-list-ol"></i>
         </ToolbarButton>
 
         <Divider />
@@ -216,7 +205,7 @@ export default function RichTextEditor({ content, onChange, editorRef, remountKe
           const color = window.prompt('Enter color (hex or name):', '#000000')
           if (color) editor.chain().focus().setColor(color).run()
         }}>
-          <span className="text-primary-600 font-bold">A</span>
+          <i className="bi bi-palette-fill text-primary-600"></i>
         </ToolbarButton>
 
         <div className="flex items-center gap-0.5">
@@ -226,7 +215,7 @@ export default function RichTextEditor({ content, onChange, editorRef, remountKe
               type="button"
               title={c}
               onClick={() => editor.chain().focus().setColor(c).run()}
-              className="w-5 h-5 rounded border border-neutral-300"
+              className="w-5 h-5 rounded border border-neutral-300 cursor-pointer"
               style={{ backgroundColor: c }}
             />
           ))}
@@ -235,32 +224,32 @@ export default function RichTextEditor({ content, onChange, editorRef, remountKe
         <Divider />
 
         <ToolbarButton title="Insert Link" active={editor.isActive('link')} onClick={setLink}>
-          &#128279;
+          <i className="bi bi-link-45deg"></i>
         </ToolbarButton>
         <ToolbarButton title="Insert Image by URL" onClick={addImage}>
-          &#128247;
+          <i className="bi bi-link-image"></i>
         </ToolbarButton>
-        <label title="Upload Image" className="px-2 py-1.5 rounded text-sm text-neutral-700 hover:bg-neutral-200 cursor-pointer">
-          &#128247;
+        <label title="Upload Image" className="btn-icon cursor-pointer">
+          <i className="bi bi-image-fill"></i>
           <input type="file" accept="image/*" onChange={addImageFile} className="hidden" />
         </label>
 
         <Divider />
 
         <ToolbarButton title="Insert Table" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>
-          &#9638;
+          <i className="bi bi-table"></i>
         </ToolbarButton>
         <ToolbarButton title="Add Row Before" onClick={() => editor.chain().focus().addRowBefore().run()} disabled={!editor.can().addRowBefore()}>
-          Row+
+          <i className="bi bi-plus-lg"></i>
         </ToolbarButton>
         <ToolbarButton title="Delete Table" onClick={() => editor.chain().focus().deleteTable().run()} disabled={!editor.can().deleteTable()}>
-          &#128465;
+          <i className="bi bi-trash"></i>
         </ToolbarButton>
 
         <Divider />
 
         <ToolbarButton title="Clear Formatting" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>
-          &#10799;
+          <i className="bi bi-eraser"></i>
         </ToolbarButton>
       </div>
 
@@ -276,31 +265,17 @@ export default function RichTextEditor({ content, onChange, editorRef, remountKe
             key={idx}
             type="button"
             onClick={() => onSelectPage(idx)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
-              idx === activePageIndex
-                ? 'bg-primary-600 text-white'
-                : 'bg-white text-neutral-600 border border-neutral-300 hover:bg-neutral-100'
-            }`}
+            className={`btn btn-xs whitespace-nowrap ${idx === activePageIndex ? 'btn-primary' : 'btn-secondary'}`}
           >
-            Page {idx + 1}
+            <i className="bi bi-file-earmark-text"></i> Page {idx + 1}
           </button>
         ))}
-        <button
-          type="button"
-          onClick={onAddPage}
-          className="px-3 py-1.5 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-300 hover:bg-green-100 transition-colors whitespace-nowrap"
-          title="Add a new blank page"
-        >
-          + New Page
+        <button type="button" onClick={onAddPage} className="btn btn-xs btn-success whitespace-nowrap" title="Add a new blank page">
+          <i className="bi bi-plus-lg"></i> New Page
         </button>
         {pages && pages.length > 1 && (
-          <button
-            type="button"
-            onClick={onRemovePage}
-            className="px-3 py-1.5 rounded-md text-xs font-medium bg-red-50 text-red-600 border border-red-300 hover:bg-red-100 transition-colors whitespace-nowrap"
-            title="Remove current page"
-          >
-            Remove Page
+          <button type="button" onClick={onRemovePage} className="btn btn-xs btn-danger whitespace-nowrap" title="Remove current page">
+            <i className="bi bi-dash-lg"></i> Remove Page
           </button>
         )}
       </div>

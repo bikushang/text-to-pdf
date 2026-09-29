@@ -1,33 +1,13 @@
 import { forwardRef } from 'react'
-import { getPageDimensions, mmToPx, MARGIN_PRESETS, FONT_FAMILIES } from '../constants'
+import { getPageDimensions, mmToPx, MARGIN_PRESETS, COVER_MARGIN_PRESETS, FONT_FAMILIES } from '../constants'
 
-const PagePreview = forwardRef(function PagePreview({ pages, settings, scale = 1, coverPageCount = 0 }, ref) {
+const PagePreview = forwardRef(function PagePreview({ pages, settings, scale = 1, hasCover = false }, ref) {
   const { widthMm, heightMm } = getPageDimensions(settings.pageSize, settings.orientation)
-  const margins = MARGIN_PRESETS[settings.marginPreset] || MARGIN_PRESETS.normal
+  const contentMargins = MARGIN_PRESETS[settings.marginPreset] || MARGIN_PRESETS.normal
+  const coverMargins = COVER_MARGIN_PRESETS[settings.coverMarginPreset || 'none'] || COVER_MARGIN_PRESETS.none
 
   const pageWidthPx = mmToPx(widthMm)
   const pageHeightPx = mmToPx(heightMm)
-  const paddingPx = {
-    top: mmToPx(margins.top),
-    right: mmToPx(margins.right),
-    bottom: mmToPx(margins.bottom),
-    left: mmToPx(margins.left),
-  }
-
-  const pageStyle = {
-    width: pageWidthPx,
-    minHeight: pageHeightPx,
-    backgroundColor: settings.bgColor,
-    padding: `${paddingPx.top}px ${paddingPx.right}px ${paddingPx.bottom}px ${paddingPx.left}px`,
-    fontFamily: FONT_FAMILIES[settings.defaultFont] || FONT_FAMILIES.Inter,
-    fontSize: settings.defaultFontSize,
-    color: '#1a1a1a',
-    lineHeight: 1.6,
-    boxSizing: 'border-box',
-    transformOrigin: 'top center',
-    transform: `scale(${scale})`,
-    position: 'relative',
-  }
 
   const pageList = Array.isArray(pages) ? pages : [pages]
 
@@ -49,22 +29,47 @@ const PagePreview = forwardRef(function PagePreview({ pages, settings, scale = 1
   ) : null
 
   return (
-    <div className="flex flex-col items-center gap-4" ref={ref}>
-      {pageList.map((pageContent, idx) => (
-        <div key={idx} className="flex flex-col items-center">
-          <div className="bg-white shadow-lg relative overflow-hidden" style={pageStyle}>
-            {idx >= coverPageCount && logoEl}
-            <div
-              className="preview-content relative"
-              style={{ zIndex: 1 }}
-              dangerouslySetInnerHTML={{
-                __html: (pageContent || '').trim() || '<p style="color:#94a3b8">Empty page...</p>'
-              }}
-            />
+    <div className="preview-page-wrapper" ref={ref}>
+      {pageList.map((pageContent, idx) => {
+        const isCover = hasCover && idx === 0
+        const margins = isCover ? coverMargins : contentMargins
+        const paddingPx = {
+          top: mmToPx(margins.top),
+          right: mmToPx(margins.right),
+          bottom: mmToPx(margins.bottom),
+          left: mmToPx(margins.left),
+        }
+
+        const pageStyle = {
+          width: pageWidthPx,
+          minHeight: pageHeightPx,
+          backgroundColor: settings.bgColor,
+          padding: `${paddingPx.top}px ${paddingPx.right}px ${paddingPx.bottom}px ${paddingPx.left}px`,
+          fontFamily: FONT_FAMILIES[settings.defaultFont] || FONT_FAMILIES.Inter,
+          fontSize: settings.defaultFontSize,
+          color: '#1a1a1a',
+          lineHeight: 1.6,
+          boxSizing: 'border-box',
+        }
+
+        return (
+          <div key={idx} className="flex flex-col items-center mb-4">
+            <div className="preview-page-inner" style={{ transform: `scale(${scale})` }}>
+              <div className="bg-white shadow-lg relative overflow-hidden" style={pageStyle}>
+                {!isCover && logoEl}
+                <div
+                  className="preview-content relative"
+                  style={{ zIndex: 1 }}
+                  dangerouslySetInnerHTML={{
+                    __html: (pageContent || '').trim() || '<p style="color:#94a3b8">Empty page...</p>'
+                  }}
+                />
+              </div>
+            </div>
+            <span className="text-xs text-neutral-400 mt-1">{isCover ? 'Cover' : `Page ${idx + (hasCover ? 1 : 1)}`}</span>
           </div>
-          <span className="text-xs text-neutral-400 mt-1">Page {idx + 1}</span>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 })

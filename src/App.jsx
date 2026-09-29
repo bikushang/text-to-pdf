@@ -4,14 +4,15 @@ import DocumentSettings from './components/DocumentSettings'
 import PagePreview from './components/PagePreview'
 import PDFEditor from './components/PDFEditor'
 import ContentModal from './components/ContentModal'
+import { DEFAULT_COVER_FIELDS, generateCoverPage } from './components/CoverPageModal'
 import { generatePDFFromContent } from './utils/pdfGenerator'
-import { generateCoverHtml } from './components/CoverPageModal'
 
 const DEFAULT_SETTINGS = {
   pageSize: 'A4',
   orientation: 'portrait',
   marginPreset: 'normal',
   margins: { top: 25, right: 25, bottom: 25, left: 25 },
+  coverMarginPreset: 'none',
   bgColor: '#ffffff',
   defaultFont: 'Inter',
   defaultFontSize: '16px',
@@ -29,19 +30,16 @@ function normalizePages(data) {
 }
 
 function normalizeCoverPage(cp) {
-  if (typeof cp === 'string') return { templateId: 'classic', fields: {}, html: cp }
-  if (cp && cp.html) return cp
+  if (typeof cp === 'string') {
+    return { templateId: 'gradient-hero', fields: { ...DEFAULT_COVER_FIELDS }, html: cp }
+  }
+  if (cp && cp.html) {
+    return {
+      ...cp,
+      fields: { ...DEFAULT_COVER_FIELDS, ...(cp.fields || {}) },
+    }
+  }
   return null
-}
-
-function getCoverLogoData(coverPage, settings) {
-  return Object.prototype.hasOwnProperty.call(coverPage || {}, 'logoData')
-    ? coverPage.logoData
-    : settings.logoData
-}
-
-function getCoverLogoWidth(coverPage, settings) {
-  return coverPage?.logoWidth || settings.logoWidth
 }
 
 function App() {
@@ -100,10 +98,7 @@ function App() {
 
   const allPagesForOutput = () => {
     const result = [...pages]
-    const coverHtml = coverPage
-      ? generateCoverHtml(coverPage, getCoverLogoData(coverPage, settings), getCoverLogoWidth(coverPage, settings))
-      : null
-    if (coverHtml) result.unshift(coverHtml)
+    if (coverPage?.html) result.unshift(coverPage.html)
     return result
   }
 
@@ -112,21 +107,10 @@ function App() {
     setError(null)
     try {
       const allPages = allPagesForOutput()
-      const pdf = await generatePDFFromContent(allPages, settings, { coverPageCount: coverPage ? 1 : 0 })
+      const pdf = await generatePDFFromContent(allPages, settings, coverPage)
       const bytes = pdf.output('arraybuffer')
       const uint8 = new Uint8Array(bytes)
       setPdfBytes(uint8)
-
-      const pdfDataUrl = pdf.output('datauristring')
-      savePdfRecord({
-        title: docTitle || 'Untitled Document',
-        pages,
-        settings,
-        coverPage,
-        pdfData: pdfDataUrl,
-        logoData: settings.logoData,
-      })
-
       setView('pdfEditor')
     } catch (err) {
       setError('Failed to generate PDF: ' + err.message)
@@ -140,7 +124,7 @@ function App() {
     setError(null)
     try {
       const allPages = allPagesForOutput()
-      const pdf = await generatePDFFromContent(allPages, settings, { coverPageCount: coverPage ? 1 : 0 })
+      const pdf = await generatePDFFromContent(allPages, settings, coverPage)
       pdf.save((docTitle || 'document') + '.pdf')
     } catch (err) {
       setError('Failed to generate PDF: ' + err.message)
@@ -184,7 +168,7 @@ function App() {
         setShowContentModal(false)
         setPdfBytes(null)
         setError(null)
-        setSettings(doc.settings || DEFAULT_SETTINGS)
+        setSettings({ ...DEFAULT_SETTINGS, ...(doc.settings || {}) })
         setDocTitle(doc.title || '')
         setCoverPage(normalizeCoverPage(doc.coverPage))
         const loadedPages = normalizePages(doc.pages || doc.content || '')
@@ -209,20 +193,6 @@ function App() {
     URL.revokeObjectURL(url)
   }
 
-  const handleEditSavedPdf = (record) => {
-    setView('editor')
-    setShowContentModal(false)
-    setPdfBytes(null)
-    setError(null)
-    setSettings(record.settings || DEFAULT_SETTINGS)
-    setDocTitle(record.title || '')
-    setCoverPage(normalizeCoverPage(record.coverPage))
-    const loadedPages = normalizePages(record.pages || record.content || '')
-    setPages(loadedPages)
-    setActivePageIndex(0)
-    setEditorKey(k => k + 1)
-  }
-
   // PDF Editor view
   if (view === 'pdfEditor' && pdfBytes) {
     return (
@@ -236,10 +206,8 @@ function App() {
     )
   }
 
-  const coverHtml = coverPage
-    ? generateCoverHtml(coverPage, getCoverLogoData(coverPage, settings), getCoverLogoWidth(coverPage, settings))
-    : null
-  const previewPages = coverHtml ? [coverHtml, ...pages] : pages
+  const hasCover = !!coverPage?.html
+  const previewPages = hasCover ? [coverPage.html, ...pages] : pages
 
   return (
     <div className="h-screen flex flex-col bg-neutral-100">
@@ -253,8 +221,8 @@ function App() {
       {/* Header */}
       <header className="bg-white border-b border-neutral-200 px-4 py-3 flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-primary-600 flex items-center justify-center text-white font-bold text-lg">
-            P
+          <div className="w-9 h-9 rounded-lg bg-primary-600 flex items-center justify-center text-white">
+            <i className="bi bi-file-earmark-pdf-fill text-lg"></i>
           </div>
           <div>
             <h1 className="text-lg font-bold text-neutral-800 leading-tight">Text-to-PDF Generator</h1>
@@ -263,62 +231,39 @@ function App() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={handleNewDocument}
-            className="px-3 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium transition-colors"
-          >
-            New
+          <button onClick={handleNewDocument} className="btn btn-sm btn-secondary">
+            <i className="bi bi-file-earmark-plus"></i> New
           </button>
-          <label className="px-3 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium transition-colors cursor-pointer">
-            Open
+          <label className="btn btn-sm btn-secondary cursor-pointer">
+            <i className="bi bi-folder2-open"></i> Open
             <input type="file" accept=".json" onChange={handleLoadDocument} className="hidden" />
           </label>
-          <button
-            onClick={handleSaveDocument}
-            className="px-3 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium transition-colors"
-          >
-            Save
+          <button onClick={handleSaveDocument} className="btn btn-sm btn-secondary">
+            <i className="bi bi-save"></i> Save
           </button>
-          <button
-            onClick={() => setShowContentModal(true)}
-            className="px-3 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium transition-colors"
-          >
-            Add Content
+          <button onClick={() => setShowContentModal(true)} className="btn btn-sm btn-secondary">
+            <i className="bi bi-plus-circle"></i> Add Content
           </button>
-          <button
-            onClick={() => setShowPreview(!showPreview)}
-            className="px-3 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium transition-colors hidden xl:inline-flex"
-          >
+          <button onClick={() => setShowPreview(!showPreview)} className="btn btn-sm btn-secondary hidden xl:inline-flex">
+            <i className={`bi ${showPreview ? 'bi-eye-slash' : 'bi-eye'}`}></i>
             {showPreview ? 'Hide Preview' : 'Show Preview'}
           </button>
-          <button
-            onClick={() => setShowPreviewModal(true)}
-            className="px-3 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium transition-colors xl:hidden"
-          >
-            Preview
+          <button onClick={() => setShowPreviewModal(true)} className="btn btn-sm btn-secondary xl:hidden">
+            <i className="bi bi-eye"></i> Preview
           </button>
-          <button
-            onClick={handleDownloadPDF}
-            disabled={downloading}
-            className="px-3 py-2 rounded-lg bg-neutral-700 hover:bg-neutral-800 text-white text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
-          >
+          <button onClick={handleDownloadPDF} disabled={downloading} className="btn btn-sm btn-dark">
             {downloading ? (
-              <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
-            ) : null}
+              <i className="bi bi-arrow-clockwise animate-spin"></i>
+            ) : (
+              <i className="bi bi-download"></i>
+            )}
             Download
           </button>
-          <button
-            onClick={handleGeneratePDF}
-            disabled={generating}
-            className="px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold transition-colors disabled:opacity-50 flex items-center gap-2"
-          >
+          <button onClick={handleGeneratePDF} disabled={generating} className="btn btn-sm btn-primary">
             {generating ? (
-              <>
-                <span className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
-                Generating...
-              </>
+              <><i className="bi bi-arrow-clockwise animate-spin"></i> Generating...</>
             ) : (
-              'Generate PDF'
+              <><i className="bi bi-lightning-charge-fill"></i> Generate PDF</>
             )}
           </button>
         </div>
@@ -327,19 +272,20 @@ function App() {
       {/* Error banner */}
       {error && (
         <div className="bg-red-50 border-b border-red-200 px-4 py-2 text-red-700 text-sm flex items-center justify-between">
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 text-lg leading-none">&times;</button>
+          <span><i className="bi bi-exclamation-triangle-fill mr-1"></i>{error}</span>
+          <button onClick={() => setError(null)} className="btn-icon"><i className="bi bi-x-lg"></i></button>
         </div>
       )}
 
       {/* Doc title bar */}
       <div className="bg-white border-b border-neutral-100 px-4 py-2 flex items-center gap-2">
+        <i className="bi bi-pencil text-neutral-400 text-sm"></i>
         <input
           type="text"
           value={docTitle}
           onChange={(e) => setDocTitle(e.target.value)}
           placeholder="Document title (used for filename)..."
-          className="flex-1 px-3 py-1.5 rounded-md border border-neutral-200 text-sm focus:outline-none:ring-1 focus:ring-primary-500"
+          className="input-field"
         />
       </div>
 
@@ -356,7 +302,7 @@ function App() {
         </aside>
 
         {/* Center - Editor */}
-        <main className="flex-1 flex flex-col overflow-hidden p-3">
+        <main className="flex-1 flex flex-col overflow-hidden p-3 min-w-0">
           <RichTextEditor
             key={editorKey}
             content={pages[activePageIndex] || ''}
@@ -371,35 +317,33 @@ function App() {
           />
           {coverPage && (
             <div className="mt-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
-              <span className="text-sm text-amber-700">Cover page: {coverPage.fields?.title || 'Untitled'} (edit in settings)</span>
-              <button onClick={() => setCoverPage(null)} className="text-xs text-amber-600 hover:text-amber-800 font-medium">Remove</button>
+              <span className="text-sm text-amber-700"><i className="bi bi-bookmark-star-fill mr-1"></i>Cover page active: {coverPage.fields?.title || 'Untitled'}</span>
+              <button onClick={() => setCoverPage(null)} className="btn btn-xs btn-danger">
+                <i className="bi bi-x-lg"></i> Remove
+              </button>
             </div>
           )}
         </main>
 
-        {/* Right - Preview (bigger, page-by-page) */}
+        {/* Right - Preview */}
         {showPreview && (
-          <aside className="w-[560px] bg-neutral-200 border-l border-neutral-200 overflow-y-auto p-4 hidden xl:block">
+          <aside className="w-[480px] bg-neutral-200 border-l border-neutral-200 preview-panel p-4 hidden xl:block">
             <div className="flex items-center justify-between mb-3 sticky top-0 bg-neutral-200 py-1 z-10">
-              <h3 className="font-semibold text-neutral-700 text-sm uppercase tracking-wide">Live Preview</h3>
+              <h3 className="font-semibold text-neutral-700 text-sm uppercase tracking-wide flex items-center gap-1.5">
+                <i className="bi bi-eye-fill"></i> Live Preview
+              </h3>
               <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setPreviewScale(Math.max(0.3, previewScale - 0.1))}
-                  className="w-7 h-7 rounded bg-white hover:bg-neutral-100 text-neutral-600 text-sm flex items-center justify-center border border-neutral-300"
-                >
-                  -
+                <button onClick={() => setPreviewScale(Math.max(0.3, previewScale - 0.1))} className="btn-icon">
+                  <i className="bi bi-dash-lg"></i>
                 </button>
                 <span className="text-xs text-neutral-600 w-10 text-center">{Math.round(previewScale * 100)}%</span>
-                <button
-                  onClick={() => setPreviewScale(Math.min(1.5, previewScale + 0.1))}
-                  className="w-7 h-7 rounded bg-white hover:bg-neutral-100 text-neutral-600 text-sm flex items-center justify-center border border-neutral-300"
-                >
-                  +
+                <button onClick={() => setPreviewScale(Math.min(1.5, previewScale + 0.1))} className="btn-icon">
+                  <i className="bi bi-plus-lg"></i>
                 </button>
               </div>
             </div>
-            <div ref={previewRef}>
-              <PagePreview pages={previewPages} settings={settings} scale={previewScale} coverPageCount={coverPage ? 1 : 0} />
+            <div ref={previewRef} className="flex justify-center">
+              <PagePreview pages={previewPages} settings={settings} scale={previewScale} hasCover={hasCover} />
             </div>
           </aside>
         )}
@@ -407,8 +351,10 @@ function App() {
 
       {/* Mobile settings toggle */}
       <div className="lg:hidden fixed bottom-4 right-4 z-40">
-        <details className="bg-white rounded-lg shadow-xl border border-neutral-200">
-          <summary className="px-4 py-2 cursor-pointer font-medium text-sm text-neutral-700">Settings</summary>
+        <details className="bg-white rounded-xl shadow-xl border border-neutral-200">
+          <summary className="px-4 py-2 cursor-pointer font-medium text-sm text-neutral-700 flex items-center gap-1.5">
+            <i className="bi bi-gear-fill"></i> Settings
+          </summary>
           <div className="p-3 w-72 max-h-[60vh] overflow-y-auto">
             <DocumentSettings
               settings={settings}
@@ -425,32 +371,27 @@ function App() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 xl:hidden" onClick={() => setShowPreviewModal(false)}>
           <div className="bg-neutral-200 rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-neutral-700 text-sm uppercase tracking-wide">Document Preview</h3>
+              <h3 className="font-semibold text-neutral-700 text-sm uppercase tracking-wide flex items-center gap-1.5">
+                <i className="bi bi-eye-fill"></i> Document Preview
+              </h3>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setPreviewScale(Math.max(0.3, previewScale - 0.1))}
-                    className="w-7 h-7 rounded bg-white hover:bg-neutral-100 text-neutral-600 text-sm flex items-center justify-center border border-neutral-300"
-                  >
-                    -
+                  <button onClick={() => setPreviewScale(Math.max(0.3, previewScale - 0.1))} className="btn-icon">
+                    <i className="bi bi-dash-lg"></i>
                   </button>
                   <span className="text-xs text-neutral-600 w-10 text-center">{Math.round(previewScale * 100)}%</span>
-                  <button
-                    onClick={() => setPreviewScale(Math.min(1.5, previewScale + 0.1))}
-                    className="w-7 h-7 rounded bg-white hover:bg-neutral-100 text-neutral-600 text-sm flex items-center justify-center border border-neutral-300"
-                  >
-                    +
+                  <button onClick={() => setPreviewScale(Math.min(1.5, previewScale + 0.1))} className="btn-icon">
+                    <i className="bi bi-plus-lg"></i>
                   </button>
                 </div>
-                <button
-                  onClick={() => setShowPreviewModal(false)}
-                  className="px-3 py-1.5 rounded-md bg-neutral-300 hover:bg-neutral-400 text-neutral-700 text-sm"
-                >
-                  Close
+                <button onClick={() => setShowPreviewModal(false)} className="btn btn-sm btn-secondary">
+                  <i className="bi bi-x-lg"></i> Close
                 </button>
               </div>
             </div>
-            <PagePreview pages={previewPages} settings={settings} scale={previewScale} coverPageCount={coverPage ? 1 : 0} />
+            <div className="flex justify-center">
+              <PagePreview pages={previewPages} settings={settings} scale={previewScale} hasCover={hasCover} />
+            </div>
           </div>
         </div>
       )}

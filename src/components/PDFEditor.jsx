@@ -275,7 +275,7 @@ export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96 text-neutral-500">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mr-3"></div>
+        <i className="bi bi-arrow-clockwise animate-spin text-2xl mr-3 text-primary-600"></i>
         Loading PDF editor...
       </div>
     )
@@ -284,8 +284,8 @@ export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-96 text-red-500">
-        <p>{error}</p>
-        <button onClick={onBack} className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg">Back to Editor</button>
+        <p><i className="bi bi-exclamation-triangle-fill mr-1"></i>{error}</p>
+        <button onClick={onBack} className="btn btn-primary mt-4"><i className="bi bi-arrow-left"></i> Back to Editor</button>
       </div>
     )
   }
@@ -294,55 +294,57 @@ export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
     <div className="flex flex-col h-full">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 p-3 bg-neutral-800 text-white">
-        <button onClick={onBack} className="px-3 py-1.5 rounded-md bg-neutral-700 hover:bg-neutral-600 text-sm">
-          &larr; Back to Editor
+        <button onClick={onBack} className="btn btn-sm" style={{ background: '#475569', color: '#fff', border: '1px solid #64748b' }}>
+          <i className="bi bi-arrow-left"></i> Back to Editor
         </button>
         <div className="w-px h-6 bg-neutral-600" />
 
         <button
           onClick={() => setActiveTool(activeTool === 'text' ? 'select' : 'text')}
-          className={`px-3 py-1.5 rounded-md text-sm transition-colors ${activeTool === 'text' ? 'bg-primary-600' : 'bg-neutral-700 hover:bg-neutral-600'}`}
+          className={`btn btn-sm ${activeTool === 'text' ? 'btn-primary' : ''}`}
+          style={activeTool !== 'text' ? { background: '#475569', color: '#fff', border: '1px solid #64748b' } : {}}
         >
-          {activeTool === 'text' ? 'Click on page to place text' : 'Add Text'}
+          <i className="bi bi-fonts"></i> {activeTool === 'text' ? 'Click on page to place text' : 'Add Text'}
         </button>
-        <label className="px-3 py-1.5 rounded-md bg-neutral-700 hover:bg-neutral-600 text-sm cursor-pointer">
-          Add Image
+        <label className="btn btn-sm cursor-pointer" style={{ background: '#475569', color: '#fff', border: '1px solid #64748b' }}>
+          <i className="bi bi-image"></i> Add Image
           <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
         </label>
         <button
           onClick={() => setSignatureMode(!signatureMode)}
-          className={`px-3 py-1.5 rounded-md text-sm transition-colors ${signatureMode ? 'bg-primary-600' : 'bg-neutral-700 hover:bg-neutral-600'}`}
+          className={`btn btn-sm ${signatureMode ? 'btn-primary' : ''}`}
+          style={!signatureMode ? { background: '#475569', color: '#fff', border: '1px solid #64748b' } : {}}
         >
-          Signature
+          <i className="bi bi-pen"></i> Signature
         </button>
 
         <div className="w-px h-6 bg-neutral-600" />
 
-        <button onClick={() => setZoom(Math.max(0.5, zoom - 0.25))} className="px-3 py-1.5 rounded-md bg-neutral-700 hover:bg-neutral-600 text-sm">
-          Zoom -
+        <button onClick={() => setZoom(Math.max(0.5, zoom - 0.25))} className="btn-icon" style={{ background: '#475569', color: '#fff', border: '1px solid #64748b' }}>
+          <i className="bi bi-dash-lg"></i>
         </button>
         <span className="text-sm w-16 text-center">{Math.round(zoom * 100)}%</span>
-        <button onClick={() => setZoom(Math.min(3, zoom + 0.25))} className="px-3 py-1.5 rounded-md bg-neutral-700 hover:bg-neutral-600 text-sm">
-          Zoom +
+        <button onClick={() => setZoom(Math.min(3, zoom + 0.25))} className="btn-icon" style={{ background: '#475569', color: '#fff', border: '1px solid #64748b' }}>
+          <i className="bi bi-plus-lg"></i>
         </button>
 
         <div className="w-px h-6 bg-neutral-600" />
 
-        <button onClick={() => rotatePage(selectedPage)} className="px-3 py-1.5 rounded-md bg-neutral-700 hover:bg-neutral-600 text-sm">
-          Rotate Page
+        <button onClick={() => rotatePage(selectedPage)} className="btn btn-sm" style={{ background: '#475569', color: '#fff', border: '1px solid #64748b' }}>
+          <i className="bi bi-arrow-clockwise"></i> Rotate Page
         </button>
         <button
           onClick={() => deletePage(selectedPage)}
           disabled={pageCount <= 1}
-          className="px-3 py-1.5 rounded-md bg-red-600 hover:bg-red-500 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn btn-sm btn-danger"
         >
-          Delete Page
+          <i className="bi bi-trash"></i> Delete Page
         </button>
 
         <div className="flex-1" />
 
-        <button onClick={handleDownload} className="px-4 py-1.5 rounded-md bg-primary-600 hover:bg-primary-700 text-sm font-semibold">
-          Download PDF
+        <button onClick={handleDownload} className="btn btn-sm btn-primary">
+          <i className="bi bi-download"></i> Download PDF
         </button>
       </div>
 
@@ -361,14 +363,14 @@ export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
                 {thumbnails[i] ? (
                   <img src={thumbnails[i]} alt={`Page ${i + 1}`} className="w-full h-full object-contain" />
                 ) : (
-                  <span className="text-neutral-400 text-xs">Page {i + 1}</span>
+                  <span className="text-neutral-400 text-xs"><i className="bi bi-file-earmark"></i> Page {i + 1}</span>
                 )}
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-xs text-neutral-500 font-medium">P{i + 1}</span>
                 <div className="flex gap-0.5">
-                  <button onClick={(e) => { e.stopPropagation(); movePageUp(i) }} disabled={i === 0} className="text-xs px-1.5 py-0.5 rounded hover:bg-neutral-200 disabled:opacity-30">&#9650;</button>
-                  <button onClick={(e) => { e.stopPropagation(); movePageDown(i) }} disabled={i === pageCount - 1} className="text-xs px-1.5 py-0.5 rounded hover:bg-neutral-200 disabled:opacity-30">&#9660;</button>
+                  <button onClick={(e) => { e.stopPropagation(); movePageUp(i) }} disabled={i === 0} className="btn-icon" style={{ width: 24, height: 24, fontSize: 11 }}><i className="bi bi-caret-up-fill"></i></button>
+                  <button onClick={(e) => { e.stopPropagation(); movePageDown(i) }} disabled={i === pageCount - 1} className="btn-icon" style={{ width: 24, height: 24, fontSize: 11 }}><i className="bi bi-caret-down-fill"></i></button>
                 </div>
               </div>
             </div>
@@ -386,7 +388,7 @@ export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
             />
             {rendering && (
               <div className="absolute inset-0 flex items-center justify-center bg-white/50">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                <i className="bi bi-arrow-clockwise animate-spin text-3xl text-primary-600"></i>
               </div>
             )}
           </div>
@@ -398,12 +400,12 @@ export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
                 value={textInput.value}
                 onChange={(e) => setTextInput({ ...textInput, value: e.target.value })}
                 placeholder="Enter text..."
-                className="w-64 h-20 px-3 py-2 border border-neutral-300 rounded-md text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="input-field w-64 h-20 mb-3"
                 autoFocus
               />
               <div className="flex gap-2 justify-end">
-                <button onClick={() => setTextInput({ visible: false, x: 0, y: 0, value: '' })} className="px-3 py-1.5 rounded-md bg-neutral-200 text-sm hover:bg-neutral-300">Cancel</button>
-                <button onClick={submitText} className="px-3 py-1.5 rounded-md bg-primary-600 text-white text-sm hover:bg-primary-700">Add</button>
+                <button onClick={() => setTextInput({ visible: false, x: 0, y: 0, value: '' })} className="btn btn-sm btn-secondary">Cancel</button>
+                <button onClick={submitText} className="btn btn-sm btn-primary">Add</button>
               </div>
             </div>
           )}
@@ -491,9 +493,9 @@ function SignaturePad({ onSave, onCancel }) {
           onMouseLeave={stopDraw}
         />
         <div className="flex gap-2 justify-end mt-3">
-          <button onClick={clear} className="px-3 py-1.5 rounded-md bg-neutral-200 text-sm hover:bg-neutral-300">Clear</button>
-          <button onClick={onCancel} className="px-3 py-1.5 rounded-md bg-neutral-200 text-sm hover:bg-neutral-300">Cancel</button>
-          <button onClick={save} className="px-3 py-1.5 rounded-md bg-primary-600 text-white text-sm hover:bg-primary-700">Save Signature</button>
+          <button onClick={clear} className="btn btn-sm btn-secondary"><i className="bi bi-eraser"></i> Clear</button>
+          <button onClick={onCancel} className="btn btn-sm btn-secondary">Cancel</button>
+          <button onClick={save} className="btn btn-sm btn-primary"><i className="bi bi-check-lg"></i> Save Signature</button>
         </div>
       </div>
     </div>

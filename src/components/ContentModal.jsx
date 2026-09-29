@@ -94,11 +94,8 @@ This is a sample document. Replace this with your own content.
                 : 'Write raw HTML code to create your document with full control over formatting.'}
             </p>
           </div>
-          <button
-            onClick={onCancel}
-            className="text-neutral-400 hover:text-neutral-600 text-2xl leading-none"
-          >
-            &times;
+          <button onClick={onCancel} className="btn-icon">
+            <i className="bi bi-x-lg"></i>
           </button>
         </div>
 
@@ -107,51 +104,43 @@ This is a sample document. Replace this with your own content.
           <button
             type="button"
             onClick={() => setMode(MODE_TEXT)}
-            className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
-              mode === MODE_TEXT
-                ? 'bg-primary-50 text-primary-700 border-b-2 border-primary-600'
-                : 'text-neutral-500 hover:text-neutral-700'
-            }`}
+            className={`btn btn-sm ${mode === MODE_TEXT ? 'btn-primary' : 'btn-secondary'}`}
           >
-            Plain Text (Auto-Format)
+            <i className="bi bi-textarea-t"></i> Plain Text (Auto-Format)
           </button>
           <button
             type="button"
             onClick={() => setMode(MODE_HTML)}
-            className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
-              mode === MODE_HTML
-                ? 'bg-primary-50 text-primary-700 border-b-2 border-primary-600'
-                : 'text-neutral-500 hover:text-neutral-700'
-            }`}
+            className={`btn btn-sm ${mode === MODE_HTML ? 'btn-primary' : 'btn-secondary'}`}
           >
-            HTML Code
+            <i className="bi bi-code-slash"></i> HTML Code
           </button>
         </div>
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-1">Document Title (optional)</label>
+            <label className="form-label">Document Title (optional)</label>
             <input
               type="text"
               value={docTitle}
               onChange={(e) => setDocTitle(e.target.value)}
               placeholder="Enter a title for your document..."
-              className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="input-field"
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-sm font-medium text-neutral-700">
+              <label className="form-label">
                 {mode === MODE_HTML ? 'HTML Code' : 'Content'}
               </label>
               <button
                 type="button"
                 onClick={() => setRawContent(mode === MODE_HTML ? sampleHtml : sampleText)}
-                className="text-xs text-primary-600 hover:text-primary-700"
+                className="btn btn-xs btn-secondary"
               >
-                Load sample
+                <i className="bi bi-file-earmark-text"></i> Load sample
               </button>
             </div>
             <textarea
@@ -162,7 +151,7 @@ This is a sample document. Replace this with your own content.
                   ? 'Type your HTML code here...\n\n<h1>Heading</h1>\n<p>Paragraph with <strong>bold</strong> text</p>\n<ul><li>Item</li></ul>\n<table><tr><td>Cell</td></tr></table>\n<hr/> for page break'
                   : 'Type your content here...\n\nUse # for headings\nUse - for bullet points\nUse 1. for numbered lists\nUse **text** for bold\nUse *text* for italic\nUse | col1 | col2 | for tables'
               }
-              className={`w-full h-72 px-4 py-3 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none leading-relaxed ${
+              className={`input-field h-72 resize-none leading-relaxed ${
                 mode === MODE_HTML ? 'font-mono' : ''
               }`}
             />
@@ -211,18 +200,11 @@ This is a sample document. Replace this with your own content.
             {rawContent.trim() ? `${rawContent.trim().split('\n').length} lines` : 'Start typing to begin'}
           </p>
           <div className="flex gap-2">
-            <button
-              onClick={onCancel}
-              className="px-4 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-medium transition-colors"
-            >
-              Cancel
+            <button onClick={onCancel} className="btn btn-secondary">
+              <i className="bi bi-x-lg"></i> Cancel
             </button>
-            <button
-              onClick={handleSubmit}
-              disabled={!rawContent.trim()}
-              className="px-6 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold transition-colors disabled:opacity-50"
-            >
-              Submit & Open Editor
+            <button onClick={handleSubmit} disabled={!rawContent.trim()} className="btn btn-primary">
+              <i className="bi bi-box-arrow-in-right"></i> Submit & Open Editor
             </button>
           </div>
         </div>

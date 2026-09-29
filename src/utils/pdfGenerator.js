@@ -1,8 +1,8 @@
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
-import { getPageDimensions, mmToPx, MARGIN_PRESETS, FONT_FAMILIES } from '../constants'
+import { getPageDimensions, mmToPx, MARGIN_PRESETS, COVER_MARGIN_PRESETS, FONT_FAMILIES } from '../constants'
 
-function createPageContainer(html, settings, widthPx, heightPx, margins, isCoverPage = false) {
+function createPageContainer(html, settings, widthPx, heightPx, margins) {
   const container = document.createElement('div')
   container.style.position = 'absolute'
   container.style.left = '-9999px'
@@ -17,7 +17,7 @@ function createPageContainer(html, settings, widthPx, heightPx, margins, isCover
   container.style.lineHeight = '1.6'
   container.style.boxSizing = 'border-box'
 
-  const logoHtml = settings.logoData && !isCoverPage
+  const logoHtml = settings.logoData
     ? `<div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:0; pointer-events:none;">
          <img src="${settings.logoData}" style="width:${settings.logoWidth}px; opacity:${settings.logoOpacity / 100}; max-width:100%;" />
        </div>`
@@ -44,15 +44,20 @@ function createPageContainer(html, settings, widthPx, heightPx, margins, isCover
   return container
 }
 
-export async function generatePDFFromContent(pages, settings, { coverPageCount = 0 } = {}) {
+/**
+ * @param {string[]} pages - Array of HTML page contents
+ * @param {object} settings - Document settings
+ * @param {object|null} coverPage - Cover page data (if first page is a cover)
+ */
+export async function generatePDFFromContent(pages, settings, coverPage = null) {
   const { widthMm, heightMm } = getPageDimensions(settings.pageSize, settings.orientation)
-  const margins = MARGIN_PRESETS[settings.marginPreset] || MARGIN_PRESETS.normal
+  const contentMargins = MARGIN_PRESETS[settings.marginPreset] || MARGIN_PRESETS.normal
+  const coverMargins = COVER_MARGIN_PRESETS[settings.coverMarginPreset || 'none'] || COVER_MARGIN_PRESETS.none
   const widthPx = mmToPx(widthMm)
   const heightPx = mmToPx(heightMm)
-  const pageHeightMm = heightMm - margins.top - margins.bottom
-  const imgWidth = widthMm - margins.left - margins.right
 
   const allPages = Array.isArray(pages) ? pages : [pages]
+  const hasCover = !!coverPage?.html
 
   const pdf = new jsPDF({
     orientation: settings.orientation,
@@ -89,8 +94,13 @@ export async function generatePDFFromContent(pages, settings, { coverPageCount =
 
   let hasAddedPage = false
   try {
-    for (const [pageIndex, pageHtml] of allPages.entries()) {
-      const container = createPageContainer(pageHtml, settings, widthPx, heightPx, margins, pageIndex < coverPageCount)
+    for (let i = 0; i < allPages.length; i++) {
+      const isCover = hasCover && i === 0
+      const margins = isCover ? coverMargins : contentMargins
+      const pageHeightMm = heightMm - margins.top - margins.bottom
+      const imgWidth = widthMm - margins.left - margins.right
+
+      const container = createPageContainer(allPages[i], settings, widthPx, heightPx, margins)
       document.body.appendChild(container)
       try {
         const canvas = await html2canvas(container, {
@@ -102,7 +112,7 @@ export async function generatePDFFromContent(pages, settings, { coverPageCount =
           windowHeight: container.scrollHeight,
         })
 
-        const pxPerMm = canvas.width / imgWidth
+        const pxPerMm = canvas.width / Math.max(1, imgWidth)
         const pageHeightPx = pageHeightMm * pxPerMm
         let yOffset = 0
 
@@ -117,7 +127,7 @@ export async function generatePDFFromContent(pages, settings, { coverPageCount =
 
           if (hasAddedPage) pdf.addPage()
           pdf.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', margins.left, margins.top, imgWidth, sliceCanvas.height / pxPerMm)
-          if (pageIndex >= coverPageCount) stampLogo()
+          if (!isCover) stampLogo()
           hasAddedPage = true
           yOffset += pageHeightPx
           if (canvas.height === 0) break

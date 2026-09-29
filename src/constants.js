@@ -18,6 +18,13 @@ export const MARGIN_PRESETS = {
   wide: { label: 'Wide', top: 50, right: 50, bottom: 50, left: 50 },
 }
 
+export const COVER_MARGIN_PRESETS = {
+  none: { label: 'None', top: 0, right: 0, bottom: 0, left: 0 },
+  narrow: { label: 'Narrow', top: 10, right: 10, bottom: 10, left: 10 },
+  normal: { label: 'Normal', top: 20, right: 20, bottom: 20, left: 20 },
+  wide: { label: 'Wide', top: 40, right: 40, bottom: 40, left: 40 },
+}
+
 export const FONT_FAMILIES = {
   Inter: 'Inter, system-ui, sans-serif',
   'Times New Roman': '"Times New Roman", Times, serif',
