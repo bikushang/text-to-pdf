@@ -193,7 +193,7 @@ export default function RichTextEditor({
         <select
           onChange={(e) => setFontSize(e.target.value)}
           className="select-field select-sm"
-          style={{width: "28rem"}}
+          style={{width: "2rem"}}
           defaultValue="16px"
           title="Font size"
         >

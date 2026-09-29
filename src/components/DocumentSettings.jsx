@@ -235,7 +235,7 @@ export default function DocumentSettings({
                 type="range"
                 min="5"
                 max="100"
-                step="1"
+                step="5"
                 value={settings.logoOpacity}
                 onChange={(e) =>
                   onChange({
