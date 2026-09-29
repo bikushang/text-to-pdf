@@ -1,28 +1,28 @@
-import { useState } from 'react'
-import { autoFormatContent } from '../utils/autoFormat'
+import { useState } from "react";
+import { autoFormatContent } from "../utils/autoFormat";
 
-const MODE_TEXT = 'text'
-const MODE_HTML = 'html'
+const MODE_TEXT = "text";
+const MODE_HTML = "html";
 
 export default function ContentModal({ onSubmit, onCancel }) {
-  const [mode, setMode] = useState(MODE_TEXT)
-  const [rawContent, setRawContent] = useState('')
-  const [docTitle, setDocTitle] = useState('')
+  const [mode, setMode] = useState(MODE_TEXT);
+  const [rawContent, setRawContent] = useState("");
+  const [docTitle, setDocTitle] = useState("");
 
   const handleSubmit = () => {
     if (mode === MODE_HTML) {
       const titleHtml = docTitle.trim()
         ? `<h1 style="text-align:center;">${docTitle.trim()}</h1>\n`
-        : ''
-      onSubmit(titleHtml + rawContent)
-      return
+        : "";
+      onSubmit(titleHtml + rawContent);
+      return;
     }
-    const formatted = autoFormatContent(rawContent)
+    const formatted = autoFormatContent(rawContent);
     const titleHtml = docTitle.trim()
       ? `<h1 style="text-align:center;">${docTitle.trim()}</h1>\n`
-      : ''
-    onSubmit(titleHtml + formatted)
-  }
+      : "";
+    onSubmit(titleHtml + formatted);
+  };
 
   const sampleText = `# My Document Title
 
@@ -43,7 +43,7 @@ This is a sample document. Replace this with your own content.
 ## Sample Table
 | Name | Role |
 | John | Developer |
-| Jane | Designer |`
+| Jane | Designer |`;
 
   const sampleHtml = `<h1 style="text-align:center;">My Document Title</h1>
 <p style="text-align:center;">A subtitle or description here</p>
@@ -79,7 +79,7 @@ This is a sample document. Replace this with your own content.
 <hr/>
 
 <h2>Second Page</h2>
-<p>Use hr tags to create page breaks between pages.</p>`
+<p>Use hr tags to create page breaks between pages.</p>`;
 
   return (
     <div className="fixed inset-0 bg-neutral-900/60 z-50 flex items-center justify-center p-4">
@@ -87,11 +87,13 @@ This is a sample document. Replace this with your own content.
         {/* Header */}
         <div className="px-6 py-4 border-b border-neutral-200 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-neutral-800">Create Your Document</h2>
+            <h2 className="text-lg font-bold text-neutral-800">
+              Create Your Document
+            </h2>
             <p className="text-sm text-neutral-500 mt-0.5">
               {mode === MODE_TEXT
-                ? 'Type plain text and it will be auto-formatted with headings, bold, lists, and tables.'
-                : 'Write raw HTML code to create your document with full control over formatting.'}
+                ? "Type plain text and it will be auto-formatted with headings, bold, lists, and tables."
+                : "Write raw HTML code to create your document with full control over formatting."}
             </p>
           </div>
           <button onClick={onCancel} className="btn-icon">
@@ -104,14 +106,14 @@ This is a sample document. Replace this with your own content.
           <button
             type="button"
             onClick={() => setMode(MODE_TEXT)}
-            className={`btn btn-sm ${mode === MODE_TEXT ? 'btn-primary' : 'btn-secondary'}`}
+            className={`btn btn-sm ${mode === MODE_TEXT ? "btn-primary" : "btn-secondary"}`}
           >
             <i className="bi bi-textarea-t"></i> Plain Text (Auto-Format)
           </button>
           <button
             type="button"
             onClick={() => setMode(MODE_HTML)}
-            className={`btn btn-sm ${mode === MODE_HTML ? 'btn-primary' : 'btn-secondary'}`}
+            className={`btn btn-sm ${mode === MODE_HTML ? "btn-primary" : "btn-secondary"}`}
           >
             <i className="bi bi-code-slash"></i> HTML Code
           </button>
@@ -133,11 +135,13 @@ This is a sample document. Replace this with your own content.
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="form-label">
-                {mode === MODE_HTML ? 'HTML Code' : 'Content'}
+                {mode === MODE_HTML ? "HTML Code" : "Content"}
               </label>
               <button
                 type="button"
-                onClick={() => setRawContent(mode === MODE_HTML ? sampleHtml : sampleText)}
+                onClick={() =>
+                  setRawContent(mode === MODE_HTML ? sampleHtml : sampleText)
+                }
                 className="btn btn-xs btn-secondary"
               >
                 <i className="bi bi-file-earmark-text"></i> Load sample
@@ -148,11 +152,11 @@ This is a sample document. Replace this with your own content.
               onChange={(e) => setRawContent(e.target.value)}
               placeholder={
                 mode === MODE_HTML
-                  ? 'Type your HTML code here...\n\n<h1>Heading</h1>\n<p>Paragraph with <strong>bold</strong> text</p>\n<ul><li>Item</li></ul>\n<table><tr><td>Cell</td></tr></table>\n<hr/> for page break'
-                  : 'Type your content here...\n\nUse # for headings\nUse - for bullet points\nUse 1. for numbered lists\nUse **text** for bold\nUse *text* for italic\nUse | col1 | col2 | for tables'
+                  ? "Type your HTML code here...\n\n<h1>Heading</h1>\n<p>Paragraph with <strong>bold</strong> text</p>\n<ul><li>Item</li></ul>\n<table><tr><td>Cell</td></tr></table>\n<hr/> for page break"
+                  : "Type your content here...\n\nUse # for headings\nUse - for bullet points\nUse 1. for numbered lists\nUse **text** for bold\nUse *text* for italic\nUse | col1 | col2 | for tables"
               }
               className={`input-field h-72 resize-none leading-relaxed ${
-                mode === MODE_HTML ? 'font-mono' : ''
+                mode === MODE_HTML ? "font-mono" : ""
               }`}
             />
           </div>
@@ -160,35 +164,136 @@ This is a sample document. Replace this with your own content.
           {/* Formatting hints */}
           {mode === MODE_TEXT ? (
             <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-              <h4 className="text-xs font-semibold text-neutral-600 uppercase tracking-wide mb-2">Formatting Guide</h4>
+              <h4 className="text-xs font-semibold text-neutral-600 uppercase tracking-wide mb-2">
+                Formatting Guide
+              </h4>
               <div className="grid grid-cols-2 gap-2 text-xs text-neutral-600">
-                <div><code className="bg-neutral-200 px-1 rounded"># Heading</code> — Large heading</div>
-                <div><code className="bg-neutral-200 px-1 rounded">## Subheading</code> — Medium heading</div>
-                <div><code className="bg-neutral-200 px-1 rounded">- item</code> — Bullet list</div>
-                <div><code className="bg-neutral-200 px-1 rounded">1. item</code> — Numbered list</div>
-                <div><code className="bg-neutral-200 px-1 rounded">**bold**</code> — Bold text</div>
-                <div><code className="bg-neutral-200 px-1 rounded">*italic*</code> — Italic text</div>
-                <div className="col-span-2"><code className="bg-neutral-200 px-1 rounded">| Col1 | Col2 |</code> — Table (each row on a new line)</div>
-                <div className="col-span-2"><code className="bg-neutral-200 px-1 rounded">[link text](url)</code> — Hyperlink</div>
-                <div className="col-span-2"><code className="bg-neutral-200 px-1 rounded">---</code> — Page break</div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded"># Heading</code>{" "}
+                  — Large heading
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">
+                    ## Subheading
+                  </code>{" "}
+                  — Medium heading
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">- item</code> —
+                  Bullet list
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">1. item</code> —
+                  Numbered list
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">**bold**</code>{" "}
+                  — Bold text
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">*italic*</code>{" "}
+                  — Italic text
+                </div>
+                <div className="col-span-2">
+                  <code className="bg-neutral-200 px-1 rounded">
+                    | Col1 | Col2 |
+                  </code>{" "}
+                  — Table (each row on a new line)
+                </div>
+                <div className="col-span-2">
+                  <code className="bg-neutral-200 px-1 rounded">
+                    [link text](url)
+                  </code>{" "}
+                  — Hyperlink
+                </div>
+                <div className="col-span-2">
+                  <code className="bg-neutral-200 px-1 rounded">---</code> —
+                  Page break
+                </div>
               </div>
             </div>
           ) : (
             <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
-              <h4 className="text-xs font-semibold text-neutral-600 uppercase tracking-wide mb-2">HTML Tags Guide</h4>
+              <h4 className="text-xs font-semibold text-neutral-600 uppercase tracking-wide mb-2">
+                HTML Tags Guide
+              </h4>
               <div className="grid grid-cols-2 gap-2 text-xs text-neutral-600">
-                <div><code className="bg-neutral-200 px-1 rounded">&lt;h1&gt;</code> to <code className="bg-neutral-200 px-1 rounded">&lt;h3&gt;</code> — Headings</div>
-                <div><code className="bg-neutral-200 px-1 rounded">&lt;p&gt;</code> — Paragraph</div>
-                <div><code className="bg-neutral-200 px-1 rounded">&lt;strong&gt;</code> — Bold</div>
-                <div><code className="bg-neutral-200 px-1 rounded">&lt;em&gt;</code> — Italic</div>
-                <div><code className="bg-neutral-200 px-1 rounded">&lt;ul&gt;&lt;li&gt;</code> — Bullet list</div>
-                <div><code className="bg-neutral-200 px-1 rounded">&lt;ol&gt;&lt;li&gt;</code> — Numbered list</div>
-                <div><code className="bg-neutral-200 px-1 rounded">&lt;table&gt;</code> — Table</div>
-                <div><code className="bg-neutral-200 px-1 rounded">&lt;a href&gt;</code> — Link</div>
-                <div><code className="bg-neutral-200 px-1 rounded">&lt;img src&gt;</code> — Image</div>
-                <div><code className="bg-neutral-200 px-1 rounded">&lt;hr/&gt;</code> — Page break</div>
-                <div className="col-span-2">Use <code className="bg-neutral-200 px-1 rounded">style="text-align:center"</code> for alignment</div>
-                <div className="col-span-2">Use <code className="bg-neutral-200 px-1 rounded">style="color:red"</code> for text color</div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">
+                    &lt;h1&gt;
+                  </code>{" "}
+                  to{" "}
+                  <code className="bg-neutral-200 px-1 rounded">
+                    &lt;h3&gt;
+                  </code>{" "}
+                  — Headings
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">&lt;p&gt;</code>{" "}
+                  — Paragraph
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">
+                    &lt;strong&gt;
+                  </code>{" "}
+                  — Bold
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">
+                    &lt;em&gt;
+                  </code>{" "}
+                  — Italic
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">
+                    &lt;ul&gt;&lt;li&gt;
+                  </code>{" "}
+                  — Bullet list
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">
+                    &lt;ol&gt;&lt;li&gt;
+                  </code>{" "}
+                  — Numbered list
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">
+                    &lt;table&gt;
+                  </code>{" "}
+                  — Table
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">
+                    &lt;a href&gt;
+                  </code>{" "}
+                  — Link
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">
+                    &lt;img src&gt;
+                  </code>{" "}
+                  — Image
+                </div>
+                <div>
+                  <code className="bg-neutral-200 px-1 rounded">
+                    &lt;hr/&gt;
+                  </code>{" "}
+                  — Page break
+                </div>
+                <div className="col-span-2">
+                  Use{" "}
+                  <code className="bg-neutral-200 px-1 rounded">
+                    style="text-align:center"
+                  </code>{" "}
+                  for alignment
+                </div>
+                <div className="col-span-2">
+                  Use{" "}
+                  <code className="bg-neutral-200 px-1 rounded">
+                    style="color:red"
+                  </code>{" "}
+                  for text color
+                </div>
               </div>
             </div>
           )}
@@ -197,18 +302,24 @@ This is a sample document. Replace this with your own content.
         {/* Footer */}
         <div className="px-6 py-4 border-t border-neutral-200 flex items-center justify-between">
           <p className="text-xs text-neutral-400">
-            {rawContent.trim() ? `${rawContent.trim().split('\n').length} lines` : 'Start typing to begin'}
+            {rawContent.trim()
+              ? `${rawContent.trim().split("\n").length} lines`
+              : "Start typing to begin"}
           </p>
           <div className="flex gap-2">
             <button onClick={onCancel} className="btn btn-secondary">
               <i className="bi bi-x-lg"></i> Cancel
             </button>
-            <button onClick={handleSubmit} disabled={!rawContent.trim()} className="btn btn-primary">
+            <button
+              onClick={handleSubmit}
+              disabled={!rawContent.trim()}
+              className="btn btn-primary"
+            >
               <i className="bi bi-box-arrow-in-right"></i> Submit & Open Editor
             </button>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
