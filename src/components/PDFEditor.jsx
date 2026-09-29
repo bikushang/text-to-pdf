@@ -7,6 +7,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
 export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
   const [pdfDoc, setPdfDoc] = useState(null);
+  const [pdfRevision, setPdfRevision] = useState(0);
   const [pageCount, setPageCount] = useState(0);
   const [pageInfos, setPageInfos] = useState([]);
   const [selectedPage, setSelectedPage] = useState(0);
@@ -90,7 +91,7 @@ export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
 
   useEffect(() => {
     renderPage();
-  }, [renderPage]);
+  }, [renderPage, pdfRevision]);
 
   // Generate thumbnail for a page
   const renderThumbnail = useCallback(async (doc, pageIndex) => {
@@ -133,7 +134,7 @@ export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
     return () => {
       cancelled = true;
     };
-  }, [pdfDoc, renderThumbnail]);
+  }, [pdfDoc, pdfRevision, renderThumbnail]);
 
   // Page operations
   const rotatePage = async (pageIndex) => {
@@ -149,16 +150,18 @@ export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
         rotation: p.getRotation().angle,
       })),
     );
-    setPdfDoc({ ...pdfDoc });
+    setPdfRevision((revision) => revision + 1);
   };
 
   const deletePage = async (pageIndex) => {
     if (!pdfDoc || pdfDoc.getPageCount() <= 1) return;
     pdfDoc.removePage(pageIndex);
     const newCount = pdfDoc.getPageCount();
-    if (selectedPage >= newCount) {
-      setSelectedPage(Math.max(0, newCount - 1));
-    }
+    setSelectedPage((currentPage) => {
+      if (currentPage > pageIndex) return currentPage - 1;
+      if (currentPage === pageIndex) return Math.min(currentPage, newCount - 1);
+      return currentPage;
+    });
     setPageCount(newCount);
     setPageInfos(
       pdfDoc.getPages().map((p, i) => ({
@@ -169,7 +172,7 @@ export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
       })),
     );
     setThumbnails([]);
-    setPdfDoc({ ...pdfDoc });
+    setPdfRevision((revision) => revision + 1);
   };
 
   const movePage = async (fromIndex, toIndex) => {
@@ -239,7 +242,7 @@ export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
     });
 
     setThumbnails([]);
-    setPdfDoc({ ...pdfDoc });
+    setPdfRevision((revision) => revision + 1);
   };
 
   // Add image annotation
@@ -269,7 +272,7 @@ export default function PDFEditor({ pdfBytes, onDownload, onBack }) {
     });
 
     setThumbnails([]);
-    setPdfDoc({ ...pdfDoc });
+    setPdfRevision((revision) => revision + 1);
   };
 
   // Handle canvas click for text placement
