@@ -132,7 +132,7 @@ export default function RichTextEditor({
   return (
     <div className="border border-neutral-300 rounded-xl overflow-hidden bg-white flex flex-col">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 p-2 bg-neutral-50 border-b border-neutral-200 sticky top-0 z-10">
+      <div className="flex items-center gap-0.5 p-2 bg-neutral-50 border-b border-neutral-200 sticky top-0 z-10">
         <ToolbarButton
           title="Undo"
           onClick={() => editor.chain().focus().undo().run()}
@@ -162,6 +162,7 @@ export default function RichTextEditor({
             e.target.value = "";
           }}
           className="select-field select-sm"
+          style={{width: "30rem"}}
           defaultValue=""
           title="Heading style"
         >
@@ -192,6 +193,7 @@ export default function RichTextEditor({
         <select
           onChange={(e) => setFontSize(e.target.value)}
           className="select-field select-sm"
+          style={{width: "28rem"}}
           defaultValue="16px"
           title="Font size"
         >
@@ -202,7 +204,8 @@ export default function RichTextEditor({
           ))}
         </select>
       </div>
-      <div className="border border-neutral-300 rounded-xl overflow-hidden bg-white flex flex-col">
+      
+      <div className="flex flex-wrap items-center gap-0.5 p-2 bg-neutral-50 border-b border-neutral-200 sticky top-0 z-10">
         <ToolbarButton
           title="Bold"
           active={editor.isActive("bold")}
