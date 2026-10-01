@@ -228,11 +228,20 @@ const PagePreview = forwardRef(function PagePreview(
           return (
             <div
               key={`page-${sourceIndex}-${chunkIndex}`}
-              className="flex flex-col items-center mb-4"
+              className="relative flex flex-col items-center mb-4"
+              style={{
+                width: pageWidthPx * scale,
+                height: pageHeightPx * scale + 30,
+              }}
             >
               <div
                 className="preview-page-inner"
-                style={{ transform: `scale(${scale})` }}
+                style={{
+                  position: "absolute",
+                  top: -10,
+                  left: "50%",
+                  transform: `translateX(-50%) scale(${scale})`,
+                }}
               >
                 <div
                   className="bg-white shadow-lg relative overflow-hidden"
@@ -252,7 +261,12 @@ const PagePreview = forwardRef(function PagePreview(
                   />
                 </div>
               </div>
-              <span className="text-xs text-neutral-400 mt-1">{label}</span>
+              <span
+                className="absolute text-xs text-neutral-400"
+                style={{ top: pageHeightPx * scale + 4 }}
+              >
+                {label}
+              </span>
             </div>
           );
         });
