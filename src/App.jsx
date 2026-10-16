@@ -239,7 +239,7 @@ function App() {
           </div>
           <div>
             <h1 className="text-lg font-bold text-neutral-800 leading-tight">
-              Text-to-PDF Generator
+              Smart PDF Document Editor
             </h1>
             <p className="text-xs text-neutral-500">
               Create, edit, and export PDF documents

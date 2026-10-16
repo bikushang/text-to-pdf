@@ -81,6 +81,12 @@ const PagePreview = forwardRef(function PagePreview(
           hasCover && index === 0
             ? normalizeCoverHtml(pageContent, pageHeightPx, margins)
             : pageContent || "";
+
+        // Cover templates are complete layouts. Splitting their nested
+        // elements would discard the outer flex/background/border wrapper and
+        // makes some templates render as plain, broken content.
+        if (hasCover && index === 0) return [measuredHtml];
+
         const marginHeight = mmToPx(margins.top + margins.bottom);
         const usableHeight = Math.max(1, pageHeightPx - marginHeight);
         const children = collectBreakableBlocks(contentEl, usableHeight);

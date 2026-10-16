@@ -25,7 +25,7 @@ export const COVER_TEMPLATES = [
     ${f.logoData ? `<img src="${f.logoData}" style="width:${f.logoWidth}px; max-width:100%; height:auto; object-fit:contain;" />` : `<div style="color:rgba(255,255,255,0.3); font-size:4em; font-weight:800;">${(f.title || "D")[0]}</div>`}
   </div>
   <div style="flex:1; background:${f.bgColor}; display:flex; flex-direction:column; justify-content:center; padding:60px 50px;">
-    <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:4px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 20px 0;">DUOLINGO</p>
+    <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:4px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 20px 0;">Document</p>
     <h1 style="font-size:${f.titleSize}px; font-weight:800; color:#1a1a1a; margin:0 0 16px 0; line-height:1.15;">${f.title || "Document Title"}</h1>
     <div style="width:60px; height:3px; background:${f.accentColor}; margin:24px 0;"></div>
     <p style="font-size:${f.subtitleSize}px; color:#64748b; margin:0 0 40px 0;">${f.subtitle || "Subtitle goes here"}</p>
@@ -62,7 +62,7 @@ export const COVER_TEMPLATES = [
     ${f.logoData ? `<img src="${f.logoData}" style="width:${f.logoWidth}px; max-width:100%; height:auto; object-fit:contain;" />` : `<span style="color:rgba(255,255,255,0.5); font-size:${f.authorSize}px; font-weight:600; letter-spacing:2px;">YOUR LOGO</span>`}
   </div>
   <div style="padding:100px 50px; text-align:center;">
-    <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:4px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 24px 0;">DUOLINGO</p>
+    <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:4px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 24px 0;">Document</p>
     <h1 style="font-size:${f.titleSize}px; font-weight:800; color:#0f172a; margin:0 0 20px 0; line-height:1.1;">${f.title || "Document Title"}</h1>
     <div style="width:80px; height:4px; background:${f.accentColor}; margin:30px auto; border-radius:2px;"></div>
     <p style="font-size:${f.subtitleSize}px; color:#64748b; margin:0 0 60px 0;">${f.subtitle || "Subtitle goes here"}</p>
@@ -78,7 +78,7 @@ export const COVER_TEMPLATES = [
     generate: (f) => `
 <div style="min-height:100vh; background:#0f172a; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 40px; margin:0; text-align:center; box-sizing:border-box;">
   ${f.logoData ? `<img src="${f.logoData}" style="width:${f.logoWidth}px; max-width:100%; height:auto; margin-bottom:50px; object-fit:contain;" />` : ""}
-  <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:6px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 28px 0;">DUOLINGO</p>
+  <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:6px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 28px 0;">Document</p>
   <h1 style="font-size:${f.titleSize}px; font-weight:700; color:#f8fafc; margin:0 0 24px 0; line-height:1.15;">${f.title || "Document Title"}</h1>
   <div style="width:60px; height:2px; background:${f.accentColor}; margin:32px auto;"></div>
   <p style="font-size:${f.subtitleSize}px; color:#cbd5e1; font-style:italic; margin:0 0 50px 0;">${f.subtitle || "Subtitle goes here"}</p>
@@ -135,7 +135,7 @@ export const COVER_TEMPLATES = [
     ${f.logoData ? `<img src="${f.logoData}" style="width:${f.logoWidth}px; max-width:100%; height:auto; margin:0 auto 60px; object-fit:contain; display:block; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.2));" />` : ""}
   </div>
   <div style="padding:40px 50px 80px; text-align:center; position:relative; z-index:1;">
-    <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:4px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 24px 0;">DUOLINGO</p>
+    <p style="font-size:${Math.round(f.authorSize * 0.75)}px; letter-spacing:4px; text-transform:uppercase; color:${f.accentColor}; font-weight:700; margin:0 0 24px 0;">Document</p>
     <h1 style="font-size:${f.titleSize}px; font-weight:800; color:#0f172a; margin:0 0 24px 0; line-height:1.1;">${f.title || "Document Title"}</h1>
     <div style="width:70px; height:4px; background:${f.accentColor}; margin:30px auto; border-radius:2px;"></div>
     <p style="font-size:${f.subtitleSize}px; color:#64748b; margin:0 0 50px 0;">${f.subtitle || "Subtitle goes here"}</p>

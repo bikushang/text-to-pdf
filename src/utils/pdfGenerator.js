@@ -122,6 +122,12 @@ async function splitHtmlAtElementBoundaries(html, settings, widthPx, heightPx, m
 
     const content = container.querySelector('.pdf-page-content')
     const usableHeight = Math.max(1, heightPx - mmToPx(margins.top + margins.bottom))
+
+    // A cover is a single designed composition. Keep its root wrapper intact
+    // so flex layouts, backgrounds, borders, and positioned banners survive
+    // into the canvas/PDF.
+    if (isCover) return [html || '']
+
     const blocks = content ? collectBreakableBlocks(content, usableHeight) : []
     if (blocks.length <= 1) return [html || '']
 
