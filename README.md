@@ -1,56 +1,137 @@
 # Smart PDF Document Editor
 
-A browser-based document editor for creating and exporting PDF documents.
+A modern React-based document editor for creating, formatting, and exporting PDF documents directly in your browser.
 
-## Package Contents
+## Features
 
-This package contains the compiled production build of the application. The original React development source code is not included.
+- Rich-text document editing
+- Text formatting and document creation
+- PDF export functionality
+- Smart pagination designed to help reduce awkward page breaks
+- Clean and responsive user interface
+- Browser-based document workflow
+- Production build using Vite
 
-- `dist/` — Compiled application files (HTML, JavaScript, CSS, and assets).
-- `CHANGELOG.md` — Version history.
-- `LICENSE-AND-THIRD-PARTY-NOTICES.md` — License and third-party notices.
+## Technology Stack
+
+- React
+- JavaScript (JSX)
+- Vite
+- Tailwind CSS
+- Tiptap
+- jsPDF
+- html2canvas
+- pdf-lib / PDF.js, where used by the application
 
 ## Requirements
 
-- A modern web browser with JavaScript enabled.
-- A static web server or compatible hosting service.
+- Node.js and npm
+- A modern web browser
+- Internet connection for installing dependencies
 
-Node.js is not required on the production server to serve the compiled files.
+## Installation
 
-## Deployment Instructions
+1. Extract the project ZIP.
+2. Open a terminal in the project directory.
+3. Install dependencies:
 
-1. Extract the ZIP archive.
-2. Open the `dist` folder.
-3. Upload the contents of `dist` to your hosting provider's public directory.
-4. Ensure the server serves `index.html` as the entry page.
-5. Open the deployed application in your browser.
-6. Create a document and test the PDF export feature.
+   ```bash
+   npm install
+   ```
 
-## Local Preview
+## Run in Development
 
-Use a local static web server to preview the `dist` folder. Avoid opening `index.html` directly using a `file://` URL, as browser security restrictions may prevent some features from working.
+Start the local development server:
+
+```bash
+npm run dev
+```
+
+Open the local URL shown in your terminal.
+
+## Build for Production
+
+Create the production build:
+
+```bash
+npm run build
+```
+
+Vite generates the production files in the `dist` directory.
+
+## Preview the Production Build
+
+Run:
+
+```bash
+npm run preview
+```
+
+Open the local URL shown in your terminal to preview the production build.
+
+## Deployment
+
+To deploy the application to Netlify or another compatible static hosting service:
+
+1. Run `npm run build`.
+2. Upload the contents of the `dist` directory or connect the project repository to your hosting provider.
+3. Configure the publish directory as `dist`.
+4. Open the deployed website and test the editor and PDF export functionality.
+
+For Netlify deployments, ensure the publish directory is configured correctly.
 
 ## Using the Application
 
 1. Open the application in a supported browser.
-2. Enter and format your document using the available editor controls.
-3. Use the PDF export feature to generate your document.
-4. Open the exported PDF and verify its formatting and page breaks.
+2. Create or enter document content.
+3. Use the available editor controls to format the content.
+4. Export the document as a PDF.
+5. Open the generated PDF and check its formatting and page breaks.
 
-Smart pagination is designed to help keep content blocks together and reduce awkward page breaks. Results may vary depending on document content, fonts, and layout.
+Smart pagination is designed to help keep content blocks together and reduce awkward page breaks. Exact pagination may vary depending on document content, fonts, and layout.
 
 ## Troubleshooting
 
-**Blank page or missing styles:** Verify that you uploaded the complete contents of `dist`, including the `assets` folder.
+**Dependencies fail to install**
 
-**Problems when hosting in a subdirectory:** The application may require an appropriate Vite base-path configuration and a new production build.
+Check your Node.js and npm versions, then run:
 
-**PDF export problems:** Try a current version of Chrome, Edge, or Firefox and check the browser console for errors.
+```bash
+npm install
+```
 
-**Changes are not visible:** Clear the browser cache or perform a hard refresh.
+**The application does not start**
 
-## Package Information
+Verify that dependencies are installed and run:
 
-This distribution contains the compiled web application only. The original development source code and build configuration are not included.
+```bash
+npm run dev
+```
 
-See `CHANGELOG.md` for version history.
+**The production build fails**
+
+Review the terminal output for missing dependencies or configuration errors.
+
+**PDF export issues**
+
+Try a current version of Chrome, Edge, or Firefox. Check the browser console for errors and verify the generated PDF.
+
+**Missing images or styles after deployment**
+
+Ensure the complete contents of `dist`, including its `assets` directory, have been deployed. If hosting in a subdirectory, configure the Vite base path appropriately and rebuild.
+
+## Package Contents
+
+The source-code distribution should include the React source files, package configuration, lockfile, public assets, and relevant build configuration.
+
+The `dist` directory contains the compiled production build when included.
+
+Do not distribute `node_modules` or private environment variables.
+
+## License and Third-Party Notices
+
+Review the included `LICENSE-AND-THIRD-PARTY-NOTICES.md` file for applicable license information. Verify all third-party dependencies and assets are licensed for your intended distribution before publishing.
+
+## Version History
+
+See `CHANGELOG.md` for release details.
